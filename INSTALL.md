@@ -281,11 +281,14 @@ Step 5: Setting up alarm watch (optional)
     happy news.  See conf.php for settings to turn this on and email address to send to.
     
 
-Step 6: Mobile access
+Step 6: Utilities and Endpoints
 -------------------------------
+
+### mobile.php
 If you wish to use mobile.php, note that this is a very simple script
 intended to be used from cell phones or any device
 with tight screen space and limited capabilities, etc
+(Note: this was meant for WAP-era cell phones like the StarTac).
 
 Caveats: My phone (StarTac 7868w on Verizon service) refused to 
 work with anything php generated
@@ -308,6 +311,20 @@ You can enter the number of hours to show stats for
 
 Remember that mobiles devices like to cache things, so keep an eye on the date
 printed at the top of the page (in the title) and reload as necessary.
+
+
+### showlatest.php
+
+This one just outputs the latest readings one-per line and is useful for simple text processing (eg grep).  Detailed description is above.
+
+### getreading.php
+
+This is a single-function API endpoint that answers questions like "What was the temperature at 3:13 on Sunday?". 
+It looks for the first reading that falls in the period starting at the time provided (unix timestamp) and ending one "interval" later.  Interval defaults to 30 minutes but can be overridden.  Also see source code.
+Example calls: 
+  * http://your.site/dtgraph/getreading.php?time=213133145&sensor=sensor1
+  * http://your.site/dtgraph/getreading.php?time=213133145&sensor[]=sensor1&sensor[]=sensor2  
+  * http://your.site/dtgraph/getreading.php?time=213133145&sensor[]=sensor1&sensor[]=sensor2&inteval=3600    
 
 
 
