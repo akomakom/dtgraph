@@ -7,10 +7,10 @@ FILES and their descriptions:
         This is the main graph displayer page. All controls, and look and feel are here
   * graph.php
         index.php will refer to this to show the actual image.
-  * conf.php(.DIST)
+  * conf(-DIST).php
         All PHP files use this for configuration values. You will find graphics,
         html, database, data, alarms, etc configuration in here
-	rename .DIST to not .DIST and edit to suit your need.
+	copy conf-DIST.php to conf.php and edit to suit your needs.
   * mobile.php
         A very simple script for accessing with a limited capability device,
         such as cell phone browser, etc. Try it with a normal browser first
