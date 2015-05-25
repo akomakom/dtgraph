@@ -3,6 +3,7 @@
 Current:
 --------------
 NOTE: run SQL/mysql_add_metadata_columns1.sql for this update!
+
 NOTE: merge your conf.php for this update, a lot has changed
 
   * Added getreading.php for getting temperature at time X
