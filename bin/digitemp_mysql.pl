@@ -1,5 +1,11 @@
 #!/usr/bin/perl -W
 
+
+######### THIS SCRIPT IS DEPRECATED !!!!! 
+######### Use www/admin/logger.php instead
+#############################################
+
+
 # DigiTemp MySQL logging script
 # Copyright 2002 by Brian C. Lane <bcl@brianlane.com>
 # All Rights Reserved
