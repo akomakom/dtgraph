@@ -1,8 +1,9 @@
 #!/bin/sh
 
 ############################################################
-# Simple shell script to log sensors temperature into digitemp
-# MySQL table for display with dtgraph
+# Simple shell script to log arbitrary sensors temperature into digitemp
+# MySQL table for display with dtgraph.  
+# Use this when you produce your own readings by means other than digitemp
 ############################################################
 
 #You can customize the mysql command line here,
