@@ -313,9 +313,7 @@ printed at the top of the page (in the title) and reload as necessary.
 
 
 
-++++++++++++++++++++++++++++++++++++++++++++++
 I guess you're done if you made it this far :)
-++++++++++++++++++++++++++++++++++++++++++++++
 
 If you find inaccuracies or lack of clarity in these instructions,
 do tell the author.
