@@ -1,0 +1,8 @@
+# This is an example of password protecting the admin directory
+# you'll need to the create the AuthUserFile with the password for user "dt"
+AuthUserFile /home/httpd/.htpasswd
+AuthName "DTGraph Administration"
+AuthType Basic 
+<Limit GET POST>
+require user dt
+</Limit>

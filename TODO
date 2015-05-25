@@ -1,0 +1,2 @@
+Make prefs cookie use aliased keys to shrink it
+Fix known issue: if alarm is raised on the most recent reading, icon isn't on the graph (until the next reading)
