@@ -6,19 +6,25 @@ NOTE: run SQL/mysql_add_metadata_columns1.sql for this update!
 NOTE: merge your conf.php for this update, a lot has changed
 
   * Added getreading.php for getting temperature at time X
-  * Fixed by-ref error when alarms present
-  * Made duration output human-readable ("24 Hours" vs "86400")
-  * Added a new script - logsensorstemp.sh (adding data from lm_sensors)
-  * Changed wording of some confusing messages
-  * Closing db driver after use
-  * Added sensor=<NAME> parameter to showlatest.php
   * using buffering to prevent ugly bad image issues when things aren't working
   * Added min/max reading limits to conf.php to avoid bogus sensor readings (eg: 185F for 1-wire network errors)
   * logger.php can now invoke alarms.php for you to eliminate the extra cronjob
   * nagios.php added for integration with nagios monitoring
   * Turned off php strict mode in conf, marked functions static
   * supporting disabled sensors better
+ 
+0.4n
+--------------
+  * I'm sorry... I am not sure what changed, I lost the svn tag ;(  - could be some of the above.
 
+0.4m
+--------------
+  * Fixed by-ref error when alarms present
+  * Made duration output human-readable ("24 Hours" vs "86400")
+  * Added a new script - logsensorstemp.sh (adding data from lm_sensors)
+  * Changed wording of some confusing messages
+  * Closing db driver after use
+  * Added sensor=<NAME> parameter to showlatest.php
 
 0.4b
 --------------
