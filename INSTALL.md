@@ -42,7 +42,7 @@ FILES and their descriptions:
   * admin/nagios.php
         Script for nagios monitoring.  View script for info
 
-### Offline command line scripts:
+### Offline command line scripts (These are optional utilities):
   * bin/mydigitemp.pl
         This is a convenience wrapper around digitemp binary which makes use of the
         added digitemp_metadata table to display sensor names with their readings.
@@ -61,19 +61,18 @@ FILES and their descriptions:
    mysql*
         The individual schema files help you create necessary tables if you don't already
         have them.  One file per table.  Use the one(s) for which you don't have tables created.
-        See the Database section below for instructions
+        See the Database section below for instructions.  
         
 
 
 REQUIREMENTS:
 ----------------------------------------------
-  * Web server with
+  Web server with
   * PHP support with PEAR MDB2 modules installed (php-cli helpful)
   * MySQL (or other database with slight modifications)
-  * Some means of logging temperature to MySQL (eg digitemp_mysql.pl)
+  * Some means of logging temperature to MySQL (eg www/admin/logger.php is provided but you may want something different)
   * JPGRAPH (version 1.4 or later may be needed) - to produce temperature graphs
-  * (Optional) Perl to log and to optionally run command line tools and alarm watch (OLD)
-    -Perl Modules for these: DB
+  * Perl for some of the optional utilities
 
 **********************************************************
 ************ INSTALLATION PROCEDURE **********************
@@ -93,7 +92,7 @@ Alternatively there is an old Perl script in bin/ subdir
 "digitemp_mysql.pl" 
 
 If you are using a data logging system of your own, you'll need to
-write a tiny perlscript (or whatever) to insert data into the readings 
+write a script to insert data into the readings 
 table (record temps). See below for database info
 
 
@@ -102,8 +101,8 @@ Step 1:  Get your database setup (very detailed)
 -------------------------------------
 DTGraph currently uses three tables: 
 
- -digitemp is the readings table (as described by digitemp_mysql.pl)
- -digitemp_metadata is a table which describes each unique sensor
+ -digitemp is the main readings table
+ -digitemp_metadata is a table which describes each unique sensor (this table is managed by admin/admin.php)
  -digitemp_alarms contains alarms if you enable this functionality
 
 
@@ -133,7 +132,6 @@ if you have trouble here)
 
 C) GRANT access to these tables to a username of your 
 choosing: 
-
 
 Note that there are two main purposes in accessing the tables:
 a) Inserting records (from sensors, etc)
