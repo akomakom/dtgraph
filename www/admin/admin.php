@@ -10,7 +10,7 @@
     </HEAD>
     <BODY>
         <!-- DRAW existing table -->
-        <FORM action="<?php echo $PHP_SELF ?>" method="POST">
+        <FORM method="POST">
         <?php
             $dtDir = dirname(__FILE__).'/../'; //may have to adjust if you move admin directory contents
 
