@@ -501,8 +501,8 @@ HTML;
                 //$_REQUEST[$savedVars[$i]] = $value[$i];
                 if (isset($values[$savedVars[$i]])) {
                     //use that one
-                    global $$savedVars[$i];
-                    $$savedVars[$i] = $values[$savedVars[$i]];
+                    global ${$savedVars[$i]};
+                    ${$savedVars[$i]} = $values[$savedVars[$i]];
                 }
             }
         }
@@ -543,14 +543,14 @@ HTML;
 
         for ($i=0; $i<count($vars); $i++) {
             //echo "setting var ".$savedVars[$i]." to ".$value[$i];
-            global $$vars[$i];
+            global ${$vars[$i]};
             if(isset($_REQUEST[$vars[$i]])) {
                 //use that one
-                $$vars[$i] = $_REQUEST[$vars[$i]];
+                ${$vars[$i]} = $_REQUEST[$vars[$i]];
                 //init them to null to allay some strange php installations
             } else {
             //    echo "Setting $vars[$i] to null ";
-                $$vars[$i] = null;
+                ${$vars[$i]} = null;
             }
         }
 
@@ -575,8 +575,8 @@ HTML;
             reset ($conf['data']['defaults']);
             while (list($key, $val) = each($conf['data']['defaults'])) {
                 if ($val) {
-                    global $$key;
-                    $$key = $val;
+                    global ${$key};
+                    ${$key} = $val;
                 }
             }
         }
