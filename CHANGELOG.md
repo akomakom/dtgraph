@@ -1,6 +1,6 @@
 #DTGraph Changelog
 
-Current:
+Current (trunk):
 --------------
 NOTE: run SQL/mysql_add_metadata_columns1.sql for this update!
 
@@ -13,6 +13,7 @@ NOTE: merge your conf.php for this update, a lot has changed
   * nagios.php added for integration with nagios monitoring
   * Turned off php strict mode in conf, marked functions static
   * supporting disabled sensors better
+  * PHP7.0 variable syntax (thanks rcmcronny)
  
 0.4n
 --------------
