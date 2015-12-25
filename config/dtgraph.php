@@ -22,6 +22,9 @@ return [
     'cache_new_readings_time' => 5,
 
 
+    // How long the database operation should take to need caching (in seconds)
+    // any operation that's faster will not be cached
+    'cache_min_lookup_threshold' => 0.4,
 
 
     /////////////// Response Data management /////////////////

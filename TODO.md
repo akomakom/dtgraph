@@ -1,0 +1,1 @@
+dtgraph user needs TRIGGER among other privs

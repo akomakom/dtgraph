@@ -80,17 +80,18 @@ class Reading extends Model
 
         $key = sprintf("readings_%s_%s_%s_%s", $sensor, self::roundTimestamp($start, $mode), self::roundTimestamp($end, $mode), $includeStats ? "stats" : "");
         if (Cache::has($key)) {
-            return Cache::get($key);
+            //TODO: turn cache back on
+       //     return Cache::get($key);
         }
 
 
-        $queryExtra = $includeStats ? ', max(Fahrenheit) as max, min(Fahrenheit) as min' : '';
-
-          switch ($mode) {
+        switch ($mode) {
             case 'days':
-                $query = "select unix_timestamp(date(time)) as time, avg(Fahrenheit) as Fahrenheit $queryExtra from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?) group by date(time) order by date(time)";
+                $queryExtra = $includeStats ? ', max, min' : '';
+                $query = "select unixtime as time, Fahrenheit $queryExtra from digitemp_daily where SerialNumber = ? and unixtime BETWEEN ? and ? order by date";
                 break;
             case 'hours':
+                $queryExtra = $includeStats ? ', max(Fahrenheit) as max, min(Fahrenheit) as min' : '';
                 // Round the time to the nearest hour
                 $query = "select unix_timestamp(DATE_FORMAT(DATE_ADD(time, INTERVAL 30 MINUTE),'%Y-%m-%d %H:00:00')) as time, avg(Fahrenheit) as Fahrenheit $queryExtra from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?) group by SerialNumber, date(time), hour(time) order by date(time), hour(time)";
                 break;
@@ -99,20 +100,23 @@ class Reading extends Model
                 $query =  "select unix_timestamp(time), Fahrenheit from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?)  order by time";
         }
 
-        $result = [ 'mode' => $mode, 'query' => $query, 'data' => DB::select($query, [$sensor, $start, $end]) ];
+        $dbTime = microtime(true);
+        $result = [ 'mode' => $mode, 'query' => $query, 'bind' => [$sensor, $start, $end] , 'data' => DB::select($query, [$sensor, $start, $end]) ];
 
+        //should we even bother caching?
+        if (microtime(true) - $dbTime > config('dtgraph.cache_min_lookup_threshold')) {
+            //caching...
+            $expiresAt = Carbon::now()->addMinutes(config('dtgraph.cache_new_readings_time'));
+            if ((time() - $end) / 60 > config('dtgraph.cache_old_readings_min_age')) {
+                //these are entirely old readings
+                $expiresAt = Carbon::now()->addMinutes(config('dtgraph.cache_old_readings_time'));
+            }
 
-        //caching...
-        $expiresAt = Carbon::now()->addMinutes(config('dtgraph.cache_new_readings_time'));
-        if ( (time() - $end) / 60 > config('dtgraph.cache_old_readings_min_age')) {
-            //these are entirely old readings
-            $expiresAt = Carbon::now()->addMinutes(config('dtgraph.cache_old_readings_time'));
+            $result['cache_expires'] = $expiresAt;
+            $result['cache_key'] = $key;
+
+            Cache::put($key, $result, $expiresAt);
         }
-
-        $result['cache_expires'] = $expiresAt;
-        $result['cache_key'] = $key;
-
-        Cache::put($key, $result, $expiresAt);
 
         return $result;
     }
