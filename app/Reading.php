@@ -25,17 +25,46 @@ class Reading extends Model
         $duration = $end - $start;
         $mode = 'normal';
 
-        //TODO: configure thresholds
-
-        if ($duration > 1209600) { //14 days
+        if ($duration > config('dtgraph.db_threshold_days')) {
             $mode = 'days';
-        } else if ($duration > 86400) {
+        } else if ($duration > config('dtgraph.db_threshold_hours')) {
             //use hours
             $mode = 'hours';
         }
 
         return $mode;
     }
+
+
+    /**
+     * Rounds off the timestamp given to the appropriate level of precision.
+     * This way cached keys will still work when the time range differences are insignificant.
+     *
+     * @param int $timestamp
+     * @param string $precisionMode
+     * @return int modified timestamp
+     */
+    private static function roundTimestamp($timestamp, $precisionMode) {
+        $date = new \DateTime();
+        $date->setTimestamp($timestamp);
+
+        switch($precisionMode) {
+            case 'days':
+                $date->modify('+12 hours');
+                $date->setTime(0,0,0);
+                break;
+            case 'hours':
+                $date->modify('+30 minutes'); //for rounding to the nearest hour
+                $date->setTime($date->format('H'), 0, 0);
+                break;
+            default:
+                $date->modify('+30 seconds');
+                $date->setTime($date->format('H'), $date->format('i'), 0);
+                break;
+        }
+        return $date->getTimestamp();
+    }
+
 
     /**
      * Retrieves readings for the given time period
@@ -47,8 +76,9 @@ class Reading extends Model
      * @param $includeStats boolean  if true, max/min will also be included (only if precision mode is aggregate, ie not normal)
      */
     public static function readings($sensor, $start, $end, $includeStats = false ) {
+        $mode = self::determinePrecision($start, $end);
 
-        $key = sprintf("readings_%s_%s_%s_%s", $sensor, $start, $end, $includeStats ? "stats" : "");
+        $key = sprintf("readings_%s_%s_%s_%s", $sensor, self::roundTimestamp($start, $mode), self::roundTimestamp($end, $mode), $includeStats ? "stats" : "");
         if (Cache::has($key)) {
             return Cache::get($key);
         }
@@ -56,8 +86,7 @@ class Reading extends Model
 
         $queryExtra = $includeStats ? ', max(Fahrenheit) as max, min(Fahrenheit) as min' : '';
 
-        $mode = self::determinePrecision($start, $end);
-        switch ($mode) {
+          switch ($mode) {
             case 'days':
                 $query = "select unix_timestamp(date(time)) as time, avg(Fahrenheit) as Fahrenheit $queryExtra from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?) group by date(time) order by date(time)";
                 break;
@@ -80,7 +109,8 @@ class Reading extends Model
             $expiresAt = Carbon::now()->addMinutes(config('dtgraph.cache_old_readings_time'));
         }
 
-        $result['expires'] = $expiresAt;
+        $result['cache_expires'] = $expiresAt;
+        $result['cache_key'] = $key;
 
         Cache::put($key, $result, $expiresAt);
 
