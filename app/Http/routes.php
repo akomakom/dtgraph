@@ -34,5 +34,7 @@ Route::group(['middleware' => ['web']], function () {
 Route::group(['namespace' => 'Dtgraph', 'prefix' => 'api'], function() {
 
     Route::resource('sensor', 'ApiController@sensor');
+    Route::resource('sensorname', 'ApiController@sensorName');
     Route::resource('reading', 'ApiController@reading');
+    Route::resource('latest', 'ApiController@latest');
 });
