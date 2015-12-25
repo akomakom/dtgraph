@@ -15,7 +15,12 @@ class Sensor extends Model
     //
 
 
-    public static function read($sensor) {
+    /**
+     * Reads sensor metadata for given sensor.  If no sensor given, reads all and returns an array.
+     * @param null $sensor
+     * @return null
+     */
+    public static function read($sensor = null) {
         $key = "sensor_metadata";
 
         $result = null;

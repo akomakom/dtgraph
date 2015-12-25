@@ -4,7 +4,6 @@ use App\Http\Controllers\Controller;
 use App\Reading;
 use App\Sensor;
 use Illuminate\Http\Request;
-use Symfony\Component\Yaml\Yaml;
 
 class ApiController extends Controller {
 
@@ -21,7 +20,7 @@ class ApiController extends Controller {
 
 
     public function reading(Request $request, $sensor) {
-        echo $request->input('a');
+        echo json_encode(Reading::readings($sensor, $request->input('start'), $request->input('end'), $request->input('stats', false)));
     }
 
 
