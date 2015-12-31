@@ -3,6 +3,7 @@
 return [
 
     /////////////////// Cache Management //////////////////
+    // NOTE: cache backend is selected in .env file
 
     // Number of minutes to cache readings read from DB
     // This setting applies to data ranges that are "old" in their entirety, with "old" determined by cache_old_readings_min_age
@@ -31,11 +32,18 @@ return [
 
     // When requested data range is longer than this (seconds), group resulting data by days
     // 1209600 is 14 days
+    // increasing this will make responses larger and slower
     'db_threshold_days' => 1209600,
 
     // When requested data range is longer than this (seconds), group resulting data by hours
     // 86400 is one day
     'db_threshold_hours' => 86400,
+
+
+
+    // for the "latest" api endpoint that returns the latest readings for each sensor,
+    // how far back to check when looking for latest (in days).
+    'latest_days_to_check' => 1,
 
 
 ];

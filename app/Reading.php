@@ -15,7 +15,10 @@ class Reading extends Model
     //
 
 
-    public static function latest($sensor, $daysToGoBack = 1) {
+    public static function latest($sensor, $daysToGoBack = null) {
+        if (!isset($daysToGoBack)) {
+            $daysToGoBack = config('dtgraph.latest_days_to_check', 1);
+        }
         return DB::select('select SerialNumber, min(fahrenheit) min, max(fahrenheit) max, avg(fahrenheit) avg, max(time + 0) maxtime from digitemp where SerialNumber = ? and time > curdate() - ?', [$sensor, $daysToGoBack]);
     }
 
@@ -88,20 +91,25 @@ class Reading extends Model
         switch ($mode) {
             case 'days':
                 $queryExtra = $includeStats ? ', max, min' : '';
-                $query = "select unixtime as time, Fahrenheit $queryExtra from digitemp_daily where SerialNumber = ? and unixtime BETWEEN ? and ? order by date";
+                $query = "select unixtime as time, Fahrenheit $queryExtra temp from digitemp_daily where SerialNumber = ? and unixtime BETWEEN ? and ? order by date";
                 break;
             case 'hours':
                 $queryExtra = $includeStats ? ', max(Fahrenheit) as max, min(Fahrenheit) as min' : '';
                 // Round the time to the nearest hour
-                $query = "select unix_timestamp(DATE_FORMAT(DATE_ADD(time, INTERVAL 30 MINUTE),'%Y-%m-%d %H:00:00')) as time, avg(Fahrenheit) as Fahrenheit $queryExtra from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?) group by SerialNumber, date(time), hour(time) order by date(time), hour(time)";
+                $query = "select unix_timestamp(DATE_FORMAT(DATE_ADD(time, INTERVAL 30 MINUTE),'%Y-%m-%d %H:00:00')) as time, avg(Fahrenheit) as temp $queryExtra from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?) group by SerialNumber, date(time), hour(time) order by date(time), hour(time)";
                 break;
             default:
                 //This mode does not include min/max (doesn't make sense)
-                $query =  "select unix_timestamp(time), Fahrenheit from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?)  order by time";
+                $query =  "select unix_timestamp(time), Fahrenheit temp from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?)  order by time";
         }
 
         $dbTime = microtime(true);
-        $result = [ 'mode' => $mode, 'query' => $query, 'bind' => [$sensor, $start, $end] , 'data' => DB::select($query, [$sensor, $start, $end]) ];
+        $result = [
+            'mode' => $mode,
+            'query' => $query,
+            'bind' => [$sensor, $start, $end] ,
+            'human' => sprintf('Start=%s, End=%s', date('r', $start), date('r', $end)),
+            'data' => DB::select($query, [$sensor, $start, $end]) ];
 
         //should we even bother caching?
         if (microtime(true) - $dbTime > config('dtgraph.cache_min_lookup_threshold')) {

@@ -7,22 +7,37 @@ use Illuminate\Http\Request;
 
 class ApiController extends Controller {
 
+    const ERROR_ARGS = 1;
+
 
     public function sensor($sensor = null) {
-       return response()->json(Sensor::read($sensor),JSON_NUMERIC_CHECK);
+        $startTime = microtime(true);
+        return $this->wrapStatus(['data' => Sensor::read($sensor)], true, $startTime);
     }
 
     public function sensorName() {
-        return response()->json(Reading::distinctSensors());
+        $startTime = microtime(true);
+        return $this->wrapStatus(['data' => Reading::distinctSensors()], true, $startTime);
     }
 
 
     public function reading(Request $request, $sensor) {
-        return response()->json(Reading::readings($sensor, $request->input('start'), $request->input('end'), $request->input('stats', false)));
+        if (!$request->exists('start') || !$request->exists('end')) {
+            return $this->makeError(self::ERROR_ARGS, 'Value required for start/end');
+        }
+        $startTime = microtime(true);
+        return
+            $this->wrapStatus(
+                Reading::readings($sensor, $request->input('start'), $request->input('end'), $request->input('stats', false)),
+                true,
+                $startTime
+            );
     }
 
 
     public function latest($sensor = null) {
+        $startTime = microtime(true);
+
         if ($sensor == null) {
             $sensors = Reading::distinctSensors();
             $result = array();
@@ -32,6 +47,33 @@ class ApiController extends Controller {
         } else {
             $result = Reading::latest($sensor);
         }
-        return response()->json($result);
+        return $this->wrapStatus(['data' => $result], true, $startTime);
     }
+
+
+
+
+    private function wrapStatus($result, $ok = true, $startTime = null, $code = 200) {
+        if (is_array($result)) {
+            $result['ok'] = $ok;
+        } else {
+            $result = ['data' => $result, 'ok' => $ok];
+        }
+
+        if ($startTime != null) {
+            $result['time'] = microtime(true) - $startTime;
+        }
+
+        return response()->json(
+            $result,
+            $code,
+            [],
+            JSON_NUMERIC_CHECK
+        );
+    }
+
+    private function makeError($errorCode, $message) {
+        return $this->wrapStatus(['message' => $message, 'code' => $errorCode], false, null, 500);
+    }
+
 }
