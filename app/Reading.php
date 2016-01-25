@@ -108,8 +108,10 @@ class Reading extends Model
             'mode' => $mode,
             'query' => $query,
             'bind' => [$sensor, $start, $end] ,
-            'human' => sprintf('Start=%s, End=%s', date('r', $start), date('r', $end)),
-            'data' => DB::select($query, [$sensor, $start, $end]) ];
+            'data' => DB::select($query, [$sensor, $start, $end])
+        ];
+
+        $result['human'] = sprintf('Readings=%d, Start=%s, End=%s, Query Time=%s', count($result['data']), date('r', $start), date('r', $end), microtime(true) - $dbTime);
 
         //should we even bother caching?
         if (microtime(true) - $dbTime > config('dtgraph.cache_min_lookup_threshold')) {

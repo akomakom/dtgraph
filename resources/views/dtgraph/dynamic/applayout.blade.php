@@ -1,4 +1,4 @@
-<html>
+<html ng-app="dtgraphApp">
     <head>
         <title>App Name - @yield('title')</title>
         <style>
@@ -22,6 +22,15 @@
         <script language="JavaScript" src="js/main.js"></script>
         <link rel="stylesheet" href="css/main.css"/>
 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<!--        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>-->
+<!--        <script language="JavaScript" src="js/angular/angular.min.js"></script>-->
+        <script language="JavaScript" src="js/angular/angular.min.js"></script>
+        <script language="JavaScript" src="js/angular/ngStorage.min.js"></script>
+<!--        <script language="JavaScript" src="js/angular/angular-route.min.js"></script>-->
+
+        @yield('header')
+
     </head>
     <body>
 
@@ -29,9 +38,8 @@
             <div id="sidebar">
                 <h1>Sidebar</h1>
 
-                @section('sidebar')
-                This is the master sidebar.
-                @show
+
+                @yield('sidebar')
 
 
             </div>

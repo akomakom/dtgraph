@@ -13,8 +13,153 @@ body {
     display: none;
 }
 
+.tick text{
+    font-size: 12px;
+}
+
+.tick line{
+    opacity: 0.2;
+}
+
+rect.zoombg {
+    fill: #f9f9f9;
+}
+
+
+ul.sensors {
+    list-style-type: none;
+    padding: 0 0;
+}
+
+ul.sensors li {
+    margin: 5px 0px;
+}
+ul.sensors li span {
+    font-size: 1.4em;
+    vertical-align: top;
+    font-family: monospace;
+}
+
+ul.sensors li input[type=checkbox] {
+    margin:0;
+    height: 14px;
+    width:14px;
+}
+
+.sensorcolor {
+    display: inline-block;
+    width:14px;
+    height:14px;
+    vertical-align: top;
+}
+
+
+
 .line {
     fill: none;
-    stroke: steelblue;
     stroke-width: 1.5px;
 }
+
+
+.line1 {
+    stroke: #FF0000;
+}
+.line2 {
+    stroke: #00FFFF;
+}
+.line3 {
+    stroke: #0000FF;
+}
+.line4 {
+    stroke: #C0C0C0;
+}
+.line5 {
+    stroke: #800080;
+}
+.line6 {
+    stroke: #FFFF00;
+}
+.line7 {
+    stroke: #00FF00;
+}
+.line8 {
+    stroke: #FF00FF;
+}
+.line9 {
+    stroke: #FFFFFF;
+}
+.line10 {
+    stroke: #804000;
+}
+.line11 {
+    stroke: #808080;
+}
+.line12 {
+    stroke: #000000;
+}
+.line13 {
+    stroke: #FF8040;
+}
+.line14 {
+    stroke: #FF0080;
+}
+.line15 {
+    stroke: #800000;
+}
+.line16 {
+    stroke: #808000;
+}
+
+
+
+.bgcolor1 {
+    background-color: #FF0000;
+}
+.bgcolor2 {
+    background-color: #00FFFF;
+}
+.bgcolor3 {
+    background-color: #0000FF;
+}
+.bgcolor4 {
+    background-color: #C0C0C0;
+}
+.bgcolor5 {
+    background-color: #800080;
+}
+.bgcolor6 {
+    background-color: #FFFF00;
+}
+.bgcolor7 {
+    background-color: #00FF00;
+}
+.bgcolor8 {
+    background-color: #FF00FF;
+}
+.bgcolor9 {
+    background-color: #FFFFFF;
+}
+.bgcolor10 {
+    background-color: #804000;
+}
+.bgcolor11 {
+    background-color: #808080;
+}
+.bgcolor12 {
+    background-color: #000000;
+}
+.bgcolor13 {
+    background-color: #FF8040;
+}
+.bgcolor14 {
+    background-color: #FF0080;
+}
+.bgcolor15 {
+    background-color: #800000;
+}
+.bgcolor16 {
+    background-color: #808000;
+}
+
+
+
