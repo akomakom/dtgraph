@@ -6,8 +6,22 @@
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
 
+    var errorData = null; //set by controller
+    var errorTimeout = null;
+
     function handlError(error) {
         console.debug("Error:" + error);
+        errorData.notices = error;
+        errorData.$apply();
+        if (errorTimeout) {
+            clearTimeout(timeout);
+        }
+
+        //set an expiration for the error display
+        errorTimeout = setTimeout(function() {
+            errorData.notices = "";
+            errorData.$apply();
+        }, 20000);
     }
 
     var Line = function(cssClass, extent) {
@@ -99,7 +113,7 @@
         var zoom = d3.behavior.zoom()
             .x(x)
             .y(y)
-            .scaleExtent([1,8])
+            .scaleExtent([0.01,10000])
             .on("zoom", zoomed);
 
 
@@ -162,8 +176,16 @@
             var result;
 
             d3.json(url, function (error, data) {
-                if (error) throw error;
+                if (error) {
+                    handlError("Failed to load data for sensor: " + error.status + " " + error.statusText + " from " + url);
+                    return;
+                }
+                if (!data.ok) {
+                    handlError('Bad data for sensor, not ok: ' + data);
+                    return;
+                }
 //                console.log(data);
+
 
                 data = data.data;
 
@@ -250,31 +272,43 @@
 
         var dtgraphApp = angular.module('dtgraphApp', ['ngStorage']);
 
+        dtgraphApp.controller('DtgraphNoticesCtrl', function($scope) {
+            //$scope.notices = errorData;
+            errorData = $scope;
+            $scope.notices = "";
+        });
+
         dtgraphApp.controller('DtgraphSensorCtrl', function ($scope, $http, $localStorage) {
 
             $scope.$storage = $localStorage.$default({
                 checkedSensors: {},
             });
 
-            $http.get('/api/sensor').success( function(response) {
-                if (response.ok) {
-                    $scope.sensors = response.data;
-                    //make sure that they are all in checkedSensors
-                    for (var idx in $scope.sensors) {
-                        var sensor = $scope.sensors[idx];
-                        //if it's false or undefined, ensure we have a hash entry
-                        if (!$scope.$storage.checkedSensors[sensor.SerialNumber]) {
-                            $scope.$storage.checkedSensors[sensor.SerialNumber] = false;
+            $http.get('/api/sensor').then(
+                function(response) {
+                    var data = response.data;
+                    if (data.ok) {
+                        $scope.sensors = data.data;
+                        //make sure that they are all in checkedSensors
+                        for (var idx in $scope.sensors) {
+                            var sensor = $scope.sensors[idx];
+                            //if it's false or undefined, ensure we have a hash entry
+                            if (!$scope.$storage.checkedSensors[sensor.SerialNumber]) {
+                                $scope.$storage.checkedSensors[sensor.SerialNumber] = false;
+                            }
                         }
-                    }
 
-                    //we can't add graphs at this point, we need to do it
-                    // after the document is processed
-                    setTimeout(applyAlreadyCheckedSensorCheckboxes, 0);
-                } else {
-                    handlError("Failed to load sensor data: " + response);
+                        //we can't add graphs at this point, we need to do it
+                        // after the document is processed
+                        setTimeout(applyAlreadyCheckedSensorCheckboxes, 0);
+                    } else {
+                        handlError("Failed to load sensor data: " + response);
+                    }
+                },
+                function(response) {
+                    handleError("Failed to load sensor data: " + response);
                 }
-            });
+            );
 
 
             $scope.sensorChecked = function(sensor, index) {
@@ -326,5 +360,6 @@
 
 
 @section('content')
+<div id="notices" ng-controller="DtgraphNoticesCtrl" ng-model="notices">@{{notices}}</div>
 <svg id="graph"></svg>
 @endsection

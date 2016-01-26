@@ -2,6 +2,11 @@ body {
     font: 10px sans-serif;
 }
 
+#notices {
+    font-family: monospace;
+    color:red;
+}
+
 .axis path,
 .axis line {
     fill: none;
@@ -71,7 +76,7 @@ ul.sensors li input[type=checkbox] {
     stroke: #0000FF;
 }
 .line4 {
-    stroke: #C0C0C0;
+    stroke: #800000;
 }
 .line5 {
     stroke: #800080;
@@ -104,7 +109,7 @@ ul.sensors li input[type=checkbox] {
     stroke: #FF0080;
 }
 .line15 {
-    stroke: #800000;
+    stroke: #C0C0C0;
 }
 .line16 {
     stroke: #808000;
@@ -122,7 +127,7 @@ ul.sensors li input[type=checkbox] {
     background-color: #0000FF;
 }
 .bgcolor4 {
-    background-color: #C0C0C0;
+    background-color: #800000;
 }
 .bgcolor5 {
     background-color: #800080;
@@ -155,7 +160,7 @@ ul.sensors li input[type=checkbox] {
     background-color: #FF0080;
 }
 .bgcolor15 {
-    background-color: #800000;
+    background-color: #C0C0C0;
 }
 .bgcolor16 {
     background-color: #808000;
