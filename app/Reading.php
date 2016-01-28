@@ -100,7 +100,7 @@ class Reading extends Model
                 break;
             default:
                 //This mode does not include min/max (doesn't make sense)
-                $query =  "select unix_timestamp(time), Fahrenheit temp from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?)  order by time";
+                $query =  "select unix_timestamp(time) as time, Fahrenheit as temp from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?)  order by time";
         }
 
         $dbTime = microtime(true);

@@ -6,6 +6,19 @@
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
 
+    //defaults
+    var timeStart = new Date().getTime() - 31536000000;      // a year ago
+    var timeEnd = new Date().getTime();
+
+    var sensorUrlConstructor = function(serialNumber, includeStats) {
+        var result = "api/reading/" + serialNumber + "?start=" + Math.round(timeStart / 1000) + "&end=" + Math.round(timeEnd / 1000);
+        if (includeStats) {
+            result += "&stats=true";
+        }
+        return result
+    }
+
+
     var errorData = null; //set by controller
     var errorTimeout = null;
 
@@ -24,16 +37,23 @@
         }, 20000);
     }
 
-    var Line = function(cssClass, extent) {
+    var Line = function(serialNumber, cssClass) {
+        this.serialNumber = serialNumber;
         this.cssClass = cssClass;
-        this.extent = extent;
-    }
+        this.path = null;
+        this.yExtent = null; //y extent
+        this.xExtent = null;
+    };
 
     //aggregator class for lines in order to calculate overall extents
     var Lines = function() {
         this.list  = {};
         var min = 0;
         var max = 0;
+
+        this.getCount = function() {
+            return Object.keys(this.list).length;
+        }
 
         this.addLine = function(line) {
             if (this.list[line.cssClass]) {
@@ -55,27 +75,43 @@
 
             for(var lineName in this.list) {
                 var line = this.list[lineName];
-                if (!min || line.extent[0] < min) {
-                    min = line.extent[0];
+                if (!min || line.yExtent[0] < min) {
+                    min = line.yExtent[0];
                 }
-                if (!max || line.extent[1] > max) {
-                    max = line.extent[1];
+                if (!max || line.yExtent[1] > max) {
+                    max = line.yExtent[1];
                 }
             }
         };
 
+        //Return the overall y extent to display all known lines
         this.getExtents = function() {
             return [min, max];
         };
 
         this.getCssClasses = function() {
             return Object.keys(this.list);
-        }
-    }
+        };
+
+        this.xDomainExceedsExtents = function(extent) {
+            result = false;
+            var self = this;
+            $.each(Object.keys(this.list), function(idx, key) {
+                var line = self.list[key];
+
+                if (line.xExtent[0] > extent[0] || line.xExtent[1] < extent[1] ) {
+                    result = true;
+                    false;
+                }
+            });
+            return result;
+        };
+    };
 
 
     var GraphManagement = function() {
         var lines = new Lines();
+        var self = this;
 
 
         var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -114,8 +150,11 @@
             .x(x)
             .y(y)
             .scaleExtent([0.01,10000])
-            .on("zoom", zoomed);
+            .on("zoom", zoomed)
+            .on("zoomend", zoomend);
 
+        var previousZoomScale = zoom.scale();
+        var zoomReloadFactor = 2;
 
         var svg = d3.select("#graph")
             .attr("width", width + margin.left + margin.right)
@@ -151,11 +190,40 @@
 
 
 
+        function zoomend(event) {
+            var scale = zoom.scale(); //new scale
+            console.debug("Zoom change from " + previousZoomScale + " to " + scale);
+
+            //save new viewport position
+            var newRange = x.domain();
+            timeStart = newRange[0].getTime();
+            timeEnd = newRange[1].getTime();
+
+
+
+            if (Math.max(previousZoomScale, scale)/Math.min(previousZoomScale, scale) > zoomReloadFactor) {
+                console.debug("Reloading");
+                previousZoomScale = scale;
+                //sufficient zoom change to reload data
+                //figure out the max/min of the current X axis, maybe load twice that.
+                //TODO: Also, maybe do this on a slight timer delay, cancel it if another zoomstart happens.
+
+                self.updateAllData();
+
+            } else if (lines.xDomainExceedsExtents(newRange)) {
+                //have we panned beyond loaded data?
+
+                self.updateAllData();
+            }
+
+        }
+
         //call the zoom on the SVG
 //        svg.call(zoom);
 
         //define the zoom function
         function zoomed() {
+
 ////
 //            svg.select(".x.axis").call(xAxis);
 //            svg.select(".y.axis").call(yAxis);
@@ -172,10 +240,15 @@
 //                .attr("d", function (d) { return line(d.values)});
         }
 
-        this.addLine = function(url, cssClass) {
-            var result;
 
-            d3.json(url, function (error, data) {
+        this.updateAllData = function(postcallback) {
+            $.each(Object.keys(lines.list), function(index, key) {
+                self.updateData(lines.list[key], postcallback);
+            });
+        }
+
+        this.updateData = function(lineWrapper, postcallback) {
+            d3.json(sensorUrlConstructor(lineWrapper.serialNumber, false), function (error, data) {
                 if (error) {
                     handlError("Failed to load data for sensor: " + error.status + " " + error.statusText + " from " + url);
                     return;
@@ -184,8 +257,6 @@
                     handlError('Bad data for sensor, not ok: ' + data);
                     return;
                 }
-//                console.log(data);
-
 
                 data = data.data;
 
@@ -194,22 +265,65 @@
                     d.temp = +d.temp;
                 });
 
-
-                lines.addLine(new Line(cssClass, d3.extent(data, function (d) {
-                    return d.temp;
-                })));
-                x.domain(d3.extent(data, function (d) {
+                
+                var xExtent = d3.extent(data, function (d) {
                     return d.time;
-                }));
-                //y.domain(d3.extent(data, function(d) { return d.temp; }));
+                });
+                
+                lineWrapper.xExtent = xExtent;
+                
+                if (lines.getCount() == 0) {
+                    //only adjust x domain if this is the first line.
+                    // after that, zoom wins
+                    x.domain(xExtent);
+                }
 
-                redraw(750);
-                zoom.x(x).y(y);
+                if (lineWrapper.path == null) {
+                    //make a path
 
-                var path = svg.append("path")
-                    .datum(data)
-                    .attr("class", "line " + cssClass)
-                    .attr("d", line);
+                    var path = svg.append("path")
+                        .datum(data)
+                        .attr("class", "line " + lineWrapper.cssClass)
+                        .attr("d", line);
+                    lineWrapper.path = path;
+                } else {
+                    lineWrapper.path.datum(data).attr('d', line);
+                }
+
+                lineWrapper.yExtent = d3.extent(data, function (d) {
+                    return d.temp;
+                });
+                lines.recalculateExtents();
+
+                if (postcallback) {
+                    postcallback();
+                }
+
+            });
+
+        }
+
+        this.addLine = function(url, serialNumber, cssClass) {
+            var result;
+
+            var self = this;
+            d3.json(url, function (error, data) {
+
+
+
+
+                var line = new Line(serialNumber, cssClass, null,  null);
+
+                self.updateData(line, function() {
+                    zoom.x(x).y(y);
+
+
+
+                    lines.addLine(line);
+
+                    redraw(750);
+                });
+
 
 //            svg.select(".line.line" + lineCount)   // change the line
 //                .duration(750)
@@ -272,6 +386,8 @@
 
         var dtgraphApp = angular.module('dtgraphApp', ['ngStorage']);
 
+
+
         dtgraphApp.controller('DtgraphNoticesCtrl', function($scope) {
             //$scope.notices = errorData;
             errorData = $scope;
@@ -282,6 +398,7 @@
 
             $scope.$storage = $localStorage.$default({
                 checkedSensors: {},
+                timeRange: { timeStart: timeStart, timeEnd: timeEnd},
             });
 
             $http.get('/api/sensor').then(
@@ -316,7 +433,7 @@
                 var cssClass = "line" + (index + 1);
                 //by now the state has already been changed
                 if ($scope.$storage.checkedSensors[sensor.SerialNumber]) {
-                    gm.addLine("api/reading/" + sensor.SerialNumber + "?start=1388552400&end=1420088399", cssClass);
+                    gm.addLine(sensorUrlConstructor(sensor.SerialNumber), sensor.SerialNumber, cssClass);
                 } else {
                     gm.removeLine(cssClass);
                 }
