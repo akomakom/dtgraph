@@ -28,7 +28,7 @@ class ApiController extends Controller {
         $startTime = microtime(true);
         return
             $this->wrapStatus(
-                Reading::readings($sensor, $request->input('start'), $request->input('end'), $request->input('stats', false)),
+                Reading::readings($sensor, $request->input('start'), $request->input('end'), $request->input('mode', 'avg')),
                 true,
                 $startTime
             );

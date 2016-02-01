@@ -76,27 +76,45 @@ class Reading extends Model
      * @param $sensor String required
      * @param $start int unix timestamp
      * @param $end int unix timestamp
-     * @param $includeStats boolean  if true, max/min will also be included (only if precision mode is aggregate, ie not normal)
+     * @param $dataMode String one of avg, min, max - selects what type of reading when appropriate.
      */
-    public static function readings($sensor, $start, $end, $includeStats = false ) {
-        $mode = self::determinePrecision($start, $end);
+    public static function readings($sensor, $start, $end, $dataMode = 'avg' ) {
+        $precisionMode = self::determinePrecision($start, $end);
 
-        $key = sprintf("readings_%s_%s_%s_%s", $sensor, self::roundTimestamp($start, $mode), self::roundTimestamp($end, $mode), $includeStats ? "stats" : "");
+        $key = sprintf("readings_%s_%s_%s_%s", $sensor, self::roundTimestamp($start, $precisionMode), self::roundTimestamp($end, $precisionMode), $dataMode);
         if (Cache::has($key)) {
             //TODO: turn cache back on
        //     return Cache::get($key);
         }
 
 
-        switch ($mode) {
+        switch ($precisionMode) {
             case 'days':
-                $queryExtra = $includeStats ? ', max, min' : '';
-                $query = "select unixtime as time, Fahrenheit $queryExtra temp from digitemp_daily where SerialNumber = ? and unixtime BETWEEN ? and ? order by date";
+                switch($dataMode) {
+                    case 'min':
+                    case 'max':
+                        $temperatureSelect = $dataMode;
+                        break;
+                    case 'avg':
+                    default:
+                        $temperatureSelect = 'Fahrenheit';
+                        break;
+                }
+                $query = "select unixtime as time, $temperatureSelect as temp from digitemp_daily where SerialNumber = ? and unixtime BETWEEN ? and ? order by date";
                 break;
             case 'hours':
-                $queryExtra = $includeStats ? ', max(Fahrenheit) as max, min(Fahrenheit) as min' : '';
+                switch($dataMode) {
+                    case 'min':
+                    case 'max':
+                    case 'avg':
+                        $temperatureSelect = "$dataMode(Fahrenheit)";
+                        break;
+                    default:
+                        $temperatureSelect = 'avg(Fahrenheit)';
+                        break;
+                }
                 // Round the time to the nearest hour
-                $query = "select unix_timestamp(DATE_FORMAT(DATE_ADD(time, INTERVAL 30 MINUTE),'%Y-%m-%d %H:00:00')) as time, avg(Fahrenheit) as temp $queryExtra from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?) group by SerialNumber, date(time), hour(time) order by date(time), hour(time)";
+                $query = "select unix_timestamp(DATE_FORMAT(DATE_ADD(time, INTERVAL 30 MINUTE),'%Y-%m-%d %H:00:00')) as time, $temperatureSelect as temp from digitemp where SerialNumber = ? and time BETWEEN from_unixtime(?) and from_unixtime(?) group by SerialNumber, date(time), hour(time) order by date(time), hour(time)";
                 break;
             default:
                 //This mode does not include min/max (doesn't make sense)
@@ -105,7 +123,7 @@ class Reading extends Model
 
         $dbTime = microtime(true);
         $result = [
-            'mode' => $mode,
+            'mode' => $precisionMode,
             'query' => $query,
             'bind' => [$sensor, $start, $end] ,
             'data' => DB::select($query, [$sensor, $start, $end])

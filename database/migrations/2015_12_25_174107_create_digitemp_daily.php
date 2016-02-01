@@ -17,7 +17,7 @@ class CreateDigitempDaily extends Migration
         if (!Schema::hasTable('digitemp_daily')) {
             echo "Creating digitemp_daily, that could take a while as it goes through all existing readings\n";
             // Raw select to create table
-            DB::statement('create table digitemp_daily as (select unix_timestamp(date(time)) as unixtime, date(time) as date, SerialNumber, avg(Fahrenheit) as Fahrenheit, max(Fahrenheit) max, min(Fahrenheit) min from digitemp  group by SerialNumber, date(time) order by date(time), SerialNumber)');
+            DB::statement('create table digitemp_daily as (select unix_timestamp(date(time)) as unixtime, TIMESTAMPADD(HOUR, 12, date(time)) as date, SerialNumber, avg(Fahrenheit) as Fahrenheit, max(Fahrenheit) max, min(Fahrenheit) min from digitemp  group by SerialNumber, date(time) order by date(time), SerialNumber)');
 
 
             Schema::table('digitemp_daily', function (Blueprint $table) {
@@ -36,8 +36,8 @@ class CreateDigitempDaily extends Migration
             for each row
             begin
                 replace into digitemp_daily values (
-                    unix_timestamp(date(NEW.time)),
-                    date(NEW.time),
+                    unix_timestamp(TIMESTAMPADD(HOUR, 12, date(NEW.time))),
+                    TIMESTAMPADD(HOUR, 12, date(NEW.time)),
                     NEW.SerialNumber,
                     (
                         select avg(Fahrenheit) from digitemp where SerialNumber = NEW.SerialNumber and time between date(NEW.time) and date(NEW.time) + 1

@@ -66,6 +66,18 @@ ul.sensors li input[type=checkbox] {
 }
 
 
+.line.max {
+    stroke-dasharray: 5,2;
+    stroke-width: 1px;
+}
+.line.min {
+    stroke-dasharray: 5,2;
+    stroke-width: 1px;
+
+}
+
+
+
 .line1 {
     stroke: #FF0000;
 }
