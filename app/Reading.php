@@ -183,4 +183,9 @@ class Reading extends Model
 
         return $result;
     }
+
+
+    public static function add($serial, $temperature) {
+        DB::insert('insert into digitemp SET SerialNumber=?, Fahrenheit=?', [$serial, $temperature]);
+    }
 }

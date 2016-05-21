@@ -10,8 +10,8 @@
     var timeStart = new Date().getTime() - 31536000000;      // a year ago
     var timeEnd = new Date().getTime();
 
-    var sensorUrlConstructor = function(serialNumber, graphMode) {
-        return "api/reading/" + serialNumber + "?start=" + Math.round(timeStart / 1000) + "&end=" + Math.round(timeEnd / 1000) + "&mode=" + graphMode;
+    var sensorUrlConstructor = function(lineWrapper) {
+        return "api/reading/" + lineWrapper.serialNumber + "?start=" + Math.round(timeStart / 1000) + "&end=" + Math.round(timeEnd / 1000) + "&mode=" + lineWrapper.graphMode;
     };
 
 
@@ -275,7 +275,7 @@
         };
 
         this.updateData = function(lineWrapper, postcallback, setXDomain) {
-            var url  = sensorUrlConstructor(lineWrapper.serialNumber, lineWrapper.graphMode);
+            var url  = sensorUrlConstructor(lineWrapper);
             d3.json(url, function (error, data) {
                 if (error) {
                     handlError("Failed to load data for sensor: " + error.status + " " + error.statusText + " from " + url);
@@ -287,8 +287,6 @@
                 }
 
                 data = data.data;
-
-
 
                 data.forEach(function (d) {
                     d.time = new Date(d.time * 1000);

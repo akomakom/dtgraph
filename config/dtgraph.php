@@ -40,10 +40,14 @@ return [
     'db_threshold_hours' => 86400,
 
 
-
     // for the "latest" api endpoint that returns the latest readings for each sensor,
     // how far back to check when looking for latest (in days).
     'latest_days_to_check' => 1,
 
 
+    'logger' => [
+        'read_temps_command' => 'digitemp -q -a -o"%R %.2F" -c ~/.digitemprc',
+        'valid_temp_min' => -100,
+        'valid_temp_max' => 180,
+    ]
 ];
