@@ -54,10 +54,10 @@ class LogDigitemp extends Command
             $serialnumber = $sensor[0];
             $temperature = $sensor[1];
             if ($serialnumber != '' and is_numeric($temperature)) {
-                echo "Inserting $serialnumber, $temperature\n";
-                if ($temperature < config('dtgraph.logger.valid_temp_min') || config('dtgraph.logger.valid_temp_max')) {
-                    echo "Invalid temperature, outside configured bounds";
+                if ($temperature < config('dtgraph.logger.valid_temp_min') || $temperature > config('dtgraph.logger.valid_temp_max')) {
+                    echo "Invalid temperature $temperature, outside configured bounds";
                 } else {
+                    echo "Inserting $serialnumber, $temperature\n";
                     Reading::add($serialnumber, $temperature);
                 }
             } else {

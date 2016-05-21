@@ -449,7 +449,7 @@
                 $scope.applyCheckedSensors();
             });
 
-            $http.get('/api/sensor').then(
+            $http.get('api/sensor').then(
                 function(response) {
                     var data = response.data;
                     if (data.ok) {
