@@ -35,7 +35,7 @@ class ApiController extends Controller {
     }
 
 
-    public function latest($sensor = null) {
+    public function latest(Request $request, $sensor = null) {
         $startTime = microtime(true);
 
         if ($sensor == null) {
@@ -47,7 +47,21 @@ class ApiController extends Controller {
         } else {
             $result = Reading::latest($sensor);
         }
-        return $this->wrapStatus(['data' => $result], true, $startTime);
+
+        //this one supports alternate formats
+        switch ($request->input('format', 'json')) {
+            case 'txt':
+                if (!is_array($result)) {
+                    $result = [$result];
+                }
+                foreach($result as $name => $item) {
+                    echo "${name}:${item['avg']}";
+                }
+                
+            break;
+            default:
+                return $this->wrapStatus(['data' => $result], true, $startTime);
+        }
     }
 
 
