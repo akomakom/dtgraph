@@ -19,7 +19,11 @@ class Reading extends Model
         if (!isset($daysToGoBack)) {
             $daysToGoBack = config('dtgraph.latest_days_to_check', 1);
         }
-        return DB::select('select SerialNumber, min(fahrenheit) min, max(fahrenheit) max, avg(fahrenheit) avg, max(time + 0) maxtime from digitemp where SerialNumber = ? and time > curdate() - ?', [$sensor, $daysToGoBack]);
+        $result = DB::select('select SerialNumber, min(fahrenheit) min, max(fahrenheit) max, avg(fahrenheit) avg, max(time + 0) maxtime from digitemp where SerialNumber = ? and time > curdate() - ?', [$sensor, $daysToGoBack]);
+        if (count($result) == 1) {
+            return $result[0];
+        }
+        return $result;
     }
 
 
