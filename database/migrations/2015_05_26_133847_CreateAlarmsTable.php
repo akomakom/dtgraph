@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCoreDataTable extends Migration
+class CreateAlarmsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -22,9 +22,9 @@ class CreateCoreDataTable extends Migration
                 $table->string('SerialNumber', 17);
                 $table->decimal('Fahrenheit', 5, 2);
                 
-                $table->dateTime('time_raised');
+                $table->dateTime('time_raised')->default(DB::raw('CURRENT_TIMESTAMP'));
                 $table->dateTime('time_cleared')->nullable();
-                $table->dateTime('time_updated')->nullable()->default('CURRENT_TIMESTAMP');
+                $table->dateTime('time_updated')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
                 $table->string('alarm_type', 15);
                 $table->string('description', 255)->nullable();

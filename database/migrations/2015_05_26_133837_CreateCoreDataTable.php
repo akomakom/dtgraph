@@ -23,7 +23,7 @@ class CreateCoreDataTable extends Migration
                 $table->string('SerialNumber', 17);
                 $table->decimal('Fahrenheit', 5, 2);
 
-                $table->index('time')->default('CURRENT_TIMESTAMP');
+                $table->index('time')->default(DB::raw('CURRENT_TIMESTAMP'));
                 $table->index('SerialNumber');
             });
 
