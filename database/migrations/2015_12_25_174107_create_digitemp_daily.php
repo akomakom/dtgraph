@@ -40,13 +40,13 @@ class CreateDigitempDaily extends Migration
                     TIMESTAMPADD(HOUR, 12, date(NEW.time)),
                     NEW.SerialNumber,
                     (
-                        select avg(Fahrenheit) from digitemp where SerialNumber = NEW.SerialNumber and time between date(NEW.time) and date(NEW.time) + 1
+                        select avg(Fahrenheit) from digitemp where SerialNumber = NEW.SerialNumber and time between date(NEW.time) and date_add(date(NEW.time), INTERVAL 1 DAY)
                     ),
                     (
-                        select max(Fahrenheit) from digitemp where SerialNumber = NEW.SerialNumber and time between date(NEW.time) and date(NEW.time) + 1
+                        select max(Fahrenheit) from digitemp where SerialNumber = NEW.SerialNumber and time between date(NEW.time) and date_add(date(NEW.time), INTERVAL 1 DAY)
                     ),
                     (
-                        select min(Fahrenheit) from digitemp where SerialNumber = NEW.SerialNumber and time between date(NEW.time) and date(NEW.time) + 1
+                        select min(Fahrenheit) from digitemp where SerialNumber = NEW.SerialNumber and time between date(NEW.time) and date_add(date(NEW.time), INTERVAL 1 DAY)
                     )
 
                 );

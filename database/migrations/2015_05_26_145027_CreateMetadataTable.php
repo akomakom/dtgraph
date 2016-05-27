@@ -13,9 +13,6 @@ class CreateMetadataTable extends Migration
     public function up()
     {
         if (!Schema::hasTable('digitemp_metadata')) {
-            // Raw select to create table
-//            DB::statement('create table digitemp_daily as (select unix_timestamp(date(time)) as unixtime, TIMESTAMPADD(HOUR, 12, date(time)) as date, SerialNumber, avg(Fahrenheit) as Fahrenheit, max(Fahrenheit) max, min(Fahrenheit) min from digitemp  group by SerialNumber, date(time) order by date(time), SerialNumber)');
-
 
             Schema::create('digitemp_metadata', function (Blueprint $table) {
                 $table->string('SerialNumber', 17);
