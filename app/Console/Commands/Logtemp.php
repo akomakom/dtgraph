@@ -44,7 +44,7 @@ class Logtemp extends Command
         $temperature = $this->option('fahrenheit');
 
         if (!$c && !$temperature) {
-            print "No option provided";
+            echo "No option provided with temperature, please see help\n";
             exit(1);
         }
 
@@ -53,7 +53,7 @@ class Logtemp extends Command
             $temperature = $c * 9/5 + 32;
         }
 
-        print "Temperature: ${temperature}F";
+        echo "Temperature: ${temperature}F\n";
 
         echo "Inserting $serialnumber, $temperature\n";
         Reading::add($serialnumber, $temperature);
