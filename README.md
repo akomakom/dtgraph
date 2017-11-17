@@ -34,7 +34,8 @@ These instructions are a concise summary of the general Laravel framework instal
    * A wrapper is provided for logging temperatures from digitemp, used like this:
    **php artisan dtgraph:logdigitemp** (see config/dtgraph.php for command that is run).
    It is your responsibility to get digitemp working before you get to this step.
-   * TBD: another command line tool to log arbitrary data
+   * A generic command to log arbitrary data:
+        **php artisan dtgraph:logtemp** (try 'php artisan help dtgraph:logtemp' for options)
 
 
 # Configuration

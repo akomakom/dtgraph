@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\LogDigitemp::class,
+        Commands\Logtemp::class,
     ];
 
     /**

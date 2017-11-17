@@ -15,11 +15,11 @@ class Reading extends Model
     //
 
 
-    public static function latest($sensor, $daysToGoBack = null) {
-        if (!isset($daysToGoBack)) {
-            $daysToGoBack = config('dtgraph.latest_days_to_check', 1);
+    public static function latest($sensor, $secondsToGoBack = null) {
+        if (!isset($secondsToGoBack)) {
+            $secondsToGoBack = config('dtgraph.latest_duration', 1);
         }
-        $result = DB::select('select SerialNumber, min(fahrenheit) min, max(fahrenheit) max, avg(fahrenheit) avg, max(time + 0) maxtime from digitemp where SerialNumber = ? and time > DATE_SUB(NOW(), INTERVAL ? DAY)', [$sensor, $daysToGoBack]);
+        $result = DB::select('select SerialNumber, min(fahrenheit) min, max(fahrenheit) max, avg(fahrenheit) avg, max(time + 0) maxtime from digitemp where SerialNumber = ? and time > DATE_SUB(NOW(), INTERVAL ? SECOND )', [$sensor, $secondsToGoBack]);
         if (count($result) == 1) {
             return $result[0];
         }

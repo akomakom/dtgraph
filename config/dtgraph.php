@@ -24,11 +24,14 @@ return [
 
 
     // How long the database operation should take to need caching (in seconds)
-    // any operation that's faster will not be cached
+    // results of any operation that is faster will not be cached
     'cache_min_lookup_threshold' => 0.4,
 
 
     /////////////// Response Data management /////////////////
+
+    //These values reduce the number of rows returned from the database
+    //Since a zoomed out graph doesn't need a lot of detail, don't fetch it - instead return daily/hourly precision.
 
     // When requested data range is longer than this (seconds), group resulting data by days
     // 1209600 is 14 days
@@ -41,8 +44,10 @@ return [
 
 
     // for the "latest" api endpoint that returns the latest readings for each sensor,
-    // how far back to check when looking for latest (in days).
-    'latest_days_to_check' => 1,
+    // how far back to check when looking for the latest row in the database (in seconds).
+    // this setting should be larger than the reading interval, but not so large as to produce unnecessary load
+    // The purpose is to find the latest reading, so going far back is not useful.
+    'latest_duration' => 1800,
 
 
     'logger' => [
