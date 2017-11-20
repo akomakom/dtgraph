@@ -261,7 +261,9 @@
                 echo "<P><HR>";
                 */
                 $graph->Add($plots[$serial]);
-                
+
+                $plots[$serial]->SetColor($color);
+
                 if (isset($options['showBands']) && $options['showBands'] == 1) {
                     if (isset($list[$serial]['max'])) {
                         $max = $list[$serial]['max'];
@@ -429,7 +431,6 @@
         if (isOptionOn($options, 'showLegend')) {
             $plot->SetLegend($plotName);
         }
-        $plot->SetColor($color);
         
         if (isOptionOn($options, 'showMarks')) {
             $plot->mark->SetType(MARK_DIAMOND);
