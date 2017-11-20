@@ -261,7 +261,9 @@
                 echo "<P><HR>";
                 */
                 $graph->Add($plots[$serial]);
-                
+
+                $plots[$serial]->SetColor($color);
+
                 if (isset($options['showBands']) && $options['showBands'] == 1) {
                     if (isset($list[$serial]['max'])) {
                         $max = $list[$serial]['max'];
@@ -346,7 +348,7 @@
      */
     function setGraphToError(&$graph, $error) {
         $txt =new Text($error);
-        $txt->Pos( 0.2,0.1);
+        $txt->SetPos( 0.2,0.1);
         $txt->SetColor( "red");
         $graph->AddText( $txt);
 
@@ -408,7 +410,7 @@
         
 
         $txt2 =new Text("Measurements shown: $count/$availableReadingsCount");
-        $txt2->Pos( 0.02,0.96);
+        $txt2->SetPos( 0.02,0.96);
         $txt2->SetColor( "blue");
         $graph->AddText( $txt2);
 
@@ -429,7 +431,6 @@
         if (isOptionOn($options, 'showLegend')) {
             $plot->SetLegend($plotName);
         }
-        $plot->SetColor($color);
         
         if (isOptionOn($options, 'showMarks')) {
             $plot->mark->SetType(MARK_DIAMOND);
