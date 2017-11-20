@@ -348,7 +348,7 @@
      */
     function setGraphToError(&$graph, $error) {
         $txt =new Text($error);
-        $txt->Pos( 0.2,0.1);
+        $txt->SetPos( 0.2,0.1);
         $txt->SetColor( "red");
         $graph->AddText( $txt);
 
@@ -410,7 +410,7 @@
         
 
         $txt2 =new Text("Measurements shown: $count/$availableReadingsCount");
-        $txt2->Pos( 0.02,0.96);
+        $txt2->SetPos( 0.02,0.96);
         $txt2->SetColor( "blue");
         $graph->AddText( $txt2);
 
