@@ -53,7 +53,7 @@ class Reading extends Model
      */
     private static function roundTimestamp($timestamp, $precisionMode) {
         $date = new \DateTime();
-        $date->setTimestamp($timestamp);
+        $date->setTimestamp(intval($timestamp));
 
         switch($precisionMode) {
             case 'days':
@@ -85,7 +85,9 @@ class Reading extends Model
     public static function readings($sensor, $start, $end, $dataMode = 'avg' ) {
         $precisionMode = self::determinePrecision($start, $end);
 
-        $key = sprintf("readings_%s_%s_%s_%s", $sensor, self::roundTimestamp($start, $precisionMode), self::roundTimestamp($end, $precisionMode), $dataMode);
+        $start = self::roundTimestamp($start, $precisionMode);
+        $end = self::roundTimestamp($end, $precisionMode);
+        $key = sprintf("readings_%s_%s_%s_%s", $sensor, $start, $end, $dataMode);
         if (Cache::has($key)) {
             //TODO: turn cache back on
        //     return Cache::get($key);
@@ -181,7 +183,7 @@ class Reading extends Model
                 array_push($result, $name->SerialNumber);
             }
 
-            $expiresAt = Carbon::now()->addMinutes(10); //TODO: unharcode
+            $expiresAt = Carbon::now()->addMinutes(config('dtgraph.cache_sensor_info_time'));
             Cache::put($key, $result, $expiresAt);
         }
 
@@ -189,7 +191,12 @@ class Reading extends Model
     }
 
 
-    public static function add($serial, $temperature) {
-        DB::insert('insert into digitemp SET SerialNumber=?, Fahrenheit=?', [$serial, $temperature]);
+    public static function add($serial, $temperature, $delta = 0) {
+        if ($delta > 0) {
+            //$time = date("Y-m-d H:i:s");
+            DB::insert('insert into digitemp SET SerialNumber=?, Fahrenheit=?, time=DATE_SUB(NOW(), INTERVAL ? SECOND)', [$serial, $temperature, $delta]);
+        } else {
+            DB::insert('insert into digitemp SET SerialNumber=?, Fahrenheit=?', [$serial, $temperature]);
+        }
     }
 }

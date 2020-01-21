@@ -68,8 +68,28 @@ class ApiController extends Controller {
                 return $this->wrapStatus(['data' => $result], true, $startTime);
         }
     }
+/**/
+    public function add(Request $request, $sensor = null) {
+        $delta = intval($request->input('delta_seconds'));
+        if (rand(0,10) > 40) {
+            return $this->wrapStatus("Faking a problem", false, null, 433);
+        }
+        if ($request->input('unit') == 'C') {
+            //convert to Fahrenheit
+            Reading::add($sensor, $request->input('temperature') *9/5+32, $delta);
 
+        } else {
+            Reading::add($sensor, $request->input('temperature'), $delta);
+        }
+        // TODO: handle humidity
+        return $this->wrapStatus('accepted');
+    }
+/**/
 
+    private function wrapStatusText($result, $code = 200) {
+        return (new Response($result, $code))
+            ->header('Content-Type', 'text/plain');
+    }
 
     private function wrapStatusText($result, $code = 200) {
         return (new Response($result, $code))

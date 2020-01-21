@@ -37,4 +37,5 @@ Route::group(['namespace' => 'Dtgraph', 'prefix' => 'api'], function() {
     Route::resource('sensorname', 'ApiController@sensorName');
     Route::resource('reading', 'ApiController@reading');
     Route::resource('latest', 'ApiController@latest');
+    Route::resource('add', 'ApiController@add');
 });
