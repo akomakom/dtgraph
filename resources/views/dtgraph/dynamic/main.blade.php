@@ -7,7 +7,7 @@
 <script>
 
     //defaults
-    var timeStart = new Date().getTime() - 31536000000;      // a year ago
+    var timeStart = new Date().addYears(-1).getTime();      // a year ago
     var timeEnd = new Date().getTime();
 
     var sensorUrlConstructor = function(lineWrapper) {
@@ -71,21 +71,27 @@
         };
 
         this.recalculateExtents = function() {
-            min = 0;
-            max = 0;
-
+            min = 2147483647;
+            max = -2147483647;
 
             for(var lineName in this.list) {
                 var line = this.list[lineName];
                 if (!line.yExtent) {
                     continue;
                 }
-                if (!min || line.yExtent[0] < min) {
+                if (min == 2147483647 || line.yExtent[0] < min) {
                     min = line.yExtent[0];
                 }
-                if (!max || line.yExtent[1] > max) {
+                if (max == -2147483647 || line.yExtent[1] > max) {
                     max = line.yExtent[1];
                 }
+            }
+
+            if (min == 2147483647) {
+                min = 0;
+            }
+            if (max == -2147483647) {
+                max = 100;
             }
         };
 
@@ -164,7 +170,7 @@
         var zoom = d3.behavior.zoom()
             .x(x)
             .y(y)
-            .scaleExtent([0.01,10000])
+            .scaleExtent([0.001,10000])
             .on("zoom", zoomed)
             .on("zoomend", zoomend);
 
@@ -213,6 +219,10 @@
             var newRange = x.domain();
             timeStart = newRange[0].getTime();
             timeEnd = newRange[1].getTime();
+
+            if (timeStart == timeEnd) {
+                //we have a problem here.
+            }
 
 
             var redrawDelayed = function() {
@@ -390,6 +400,14 @@
         };
 
 
+        this.zoomTo = function(start, end) {
+            x.domain([start, end]);
+            zoom.x(x);
+            zoom.event(svg);
+//            redraw(500);
+        }
+
+
     };
 
     var gm;
@@ -455,13 +473,21 @@
                     if (data.ok) {
                         $scope.sensors = data.data;
                         //make sure that they are all in checkedSensors
+                        var extraSensors = Object.keys($scope.$storage.checkedSensors);
                         for (var idx in $scope.sensors) {
                             var sensor = $scope.sensors[idx];
                             //if it's false or undefined, ensure we have a hash entry
                             if (!$scope.$storage.checkedSensors[sensor.SerialNumber]) {
                                 $scope.$storage.checkedSensors[sensor.SerialNumber] = false;
                             }
+                            delete extraSensors[extraSensors.indexOf(sensor.SerialNumber)];
                         }
+
+                        //but what if we have old sensors in checkedSensors that are no longer valid?
+                        $.each(extraSensors, function(idx, sensor) {
+                            delete $scope.$storage.checkedSensors[sensor];
+                        });
+//                        if ($scope.$storage.checkedSensors && $scope.$storage.checkedSensors.length >  )
 
                         //we can't add graphs at this point, we need to do it
                         // after the document is processed
@@ -508,6 +534,18 @@
             $scope.graphModeChanged = function() {
                 $scope.applyCheckedSensors();
             }
+
+            $scope.graphZoomJump = function(period) {
+                if (period == 'year') {
+                    gm.zoomTo(new Date().addYears(-1), new Date())
+                } else if (period == 'month') {
+                    gm.zoomTo(new Date().addDays(-30), new Date());
+                } else if (period == 'day') {
+                    gm.zoomTo(new Date().addDays(-1), new Date());
+                } else if (period == 'hour') {
+                    gm.zoomTo(new Date().addHours(-1), new Date());
+                }
+            }
         });
 
     })(window.angular);
@@ -532,10 +570,16 @@
             </li>
         </ul>
     </div>
-    <div id="graphmodes"  ng-controller="DtgraphSensorCtrl">
+    <div id="graphmodes" ng-controller="DtgraphSensorCtrl">
         <input type="checkbox" ng-model="$storage.graphModes.avg" ng-change="graphModeChanged()"/> <span>Avg</span>
         <input type="checkbox" ng-model="$storage.graphModes.min" ng-change="graphModeChanged()"/> <span>Min</span>
         <input type="checkbox" ng-model="$storage.graphModes.max" ng-change="graphModeChanged()"> <span>Max</span>
+    </div>
+    <div id="zoomjump" ng-controller="DtgraphSensorCtrl">
+        <input type="button" ng-click="graphZoomJump('year')" value="Year"/>
+        <input type="button" ng-click="graphZoomJump('month')" value="Month"/>
+        <input type="button" ng-click="graphZoomJump('day')" value="Day"/>
+        <input type="button" ng-click="graphZoomJump('hour')" value="Hour"/>
     </div>
 </div>
 @endsection

@@ -4,6 +4,8 @@ use App\Http\Controllers\Controller;
 use App\Reading;
 use App\Sensor;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
 
 class ApiController extends Controller {
 
@@ -41,8 +43,8 @@ class ApiController extends Controller {
         if ($sensor == null) {
             $sensors = Reading::distinctSensors();
             $result = array();
-            foreach($sensors as $sensor) {
-                $result[$sensor] =  Reading::latest($sensor);
+            foreach($sensors as $s) {
+                $result[$s] =  Reading::latest($s);
             }
         } else {
             $result = Reading::latest($sensor);
@@ -50,21 +52,44 @@ class ApiController extends Controller {
 
         //this one supports alternate formats
         switch ($request->input('format', 'json')) {
+
             case 'txt':
-                if (!is_array($result)) {
-                    $result = [$result];
+                $response = '';
+                if ($sensor != null) {
+                    $response = $result->avg;
+                } else {
+                    foreach ($result as $name => $item) {
+                        $response .= sprintf ("%s:%s\n", $name, $item->avg);
+                    }
                 }
-                foreach($result as $name => $item) {
-                    echo "${name}:${item['avg']}";
-                }
-                
+                return $this->wrapStatusText($response);
             break;
             default:
                 return $this->wrapStatus(['data' => $result], true, $startTime);
         }
     }
+/**/
+    public function add(Request $request, $sensor = null) {
+        $delta = intval($request->input('delta_seconds'));
+        if (rand(0,10) > 40) {
+            return $this->wrapStatus("Faking a problem", false, null, 433);
+        }
+        if ($request->input('unit') == 'C') {
+            //convert to Fahrenheit
+            Reading::add($sensor, $request->input('temperature') *9/5+32, $delta);
 
+        } else {
+            Reading::add($sensor, $request->input('temperature'), $delta);
+        }
+        // TODO: handle humidity
+        return $this->wrapStatus('accepted');
+    }
+/**/
 
+    private function wrapStatusText($result, $code = 200) {
+        return (new Response($result, $code))
+            ->header('Content-Type', 'text/plain');
+    }
 
 
     private function wrapStatus($result, $ok = true, $startTime = null, $code = 200) {

@@ -103,7 +103,7 @@ ul.sensors li input[type=checkbox] {
     stroke: #FF00FF;
 }
 .line9 {
-    stroke: #FFFFFF;
+    stroke: #808000;
 }
 .line10 {
     stroke: #804000;
@@ -122,9 +122,6 @@ ul.sensors li input[type=checkbox] {
 }
 .line15 {
     stroke: #C0C0C0;
-}
-.line16 {
-    stroke: #808000;
 }
 
 
@@ -154,7 +151,7 @@ ul.sensors li input[type=checkbox] {
     background-color: #FF00FF;
 }
 .bgcolor9 {
-    background-color: #FFFFFF;
+    background-color: #808000;
 }
 .bgcolor10 {
     background-color: #804000;
@@ -173,9 +170,6 @@ ul.sensors li input[type=checkbox] {
 }
 .bgcolor15 {
     background-color: #C0C0C0;
-}
-.bgcolor16 {
-    background-color: #808000;
 }
 
 

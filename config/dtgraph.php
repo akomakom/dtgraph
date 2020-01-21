@@ -4,6 +4,9 @@ return [
 
     /////////////////// Cache Management //////////////////
     // NOTE: cache backend is selected in .env file
+    // You can expire cache if you are impatient with something like:
+    //   sudo php artisan cache:clear
+
 
     // Number of minutes to cache readings read from DB
     // This setting applies to data ranges that are "old" in their entirety, with "old" determined by cache_old_readings_min_age
@@ -13,7 +16,7 @@ return [
 
     // Readings at least this old (minutes) are eligible to be cached for cache_old_readings_time
     // with the assumption that they are not likely to change (probably ever)
-    // If your old data changes frequently, you can set both time settings to a low value or 0, or you can
+    // If your old data changes frequently, you can set both _time settings to a low value or 0, or you can
     // change this setting to a very high value to make all readings treated as new.
     'cache_old_readings_min_age' => 30,
 
@@ -24,11 +27,19 @@ return [
 
 
     // How long the database operation should take to need caching (in seconds)
-    // any operation that's faster will not be cached
+    // results of any operation that is faster will not be cached
     'cache_min_lookup_threshold' => 0.4,
 
 
+    // Number of minutes to cache sensor info.
+    // Affects when we notice new sensors appearing or old ones being deleted.
+    'cache_sensor_info_time' => 60,
+
+
     /////////////// Response Data management /////////////////
+
+    //These values reduce the number of rows returned from the database
+    //Since a zoomed out graph doesn't need a lot of detail, don't fetch it - instead return daily/hourly precision.
 
     // When requested data range is longer than this (seconds), group resulting data by days
     // 1209600 is 14 days
@@ -41,8 +52,10 @@ return [
 
 
     // for the "latest" api endpoint that returns the latest readings for each sensor,
-    // how far back to check when looking for latest (in days).
-    'latest_days_to_check' => 1,
+    // how far back to check when looking for the latest row in the database (in seconds).
+    // this setting should be larger than the reading interval, but not so large as to produce unnecessary load
+    // The purpose is to find the latest reading, so going far back is not useful.
+    'latest_duration' => 1800,
 
 
     'logger' => [

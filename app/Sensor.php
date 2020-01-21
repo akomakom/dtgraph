@@ -21,14 +21,14 @@ class Sensor extends Model
      * @return null
      */
     public static function read($sensor = null) {
-        $key = "sensor_metadata";
+        $key = "sensor_metadata${sensor}";
 
         $result = null;
         if (Cache::has($key)) {
             $result = Cache::get($key);
         } else {
-
             //using either query builder or the eloquent stuff fails as it converts SerialNumber to integer.
+
             if (isset($sensor)) {
                 $result = DB::select('select * from digitemp_metadata where SerialNumber = ?', [$sensor]);
             } else {
@@ -36,7 +36,7 @@ class Sensor extends Model
             }
 
 //            $result = Sensor::all();
-            $expiresAt = Carbon::now()->addMinutes(10); //TODO: unharcode
+            $expiresAt = Carbon::now()->addMinutes(config('dtgraph.cache_sensor_info_time'));
             Cache::put($key, $result, $expiresAt);
         }
 
