@@ -578,7 +578,7 @@
             </li>
         </ul>
     </div>
-    <div id="graphmodes" ng-controller="DtgraphSensorCtrl" title="When displayed data is zoomed out it is shown as a summary (ie group by) only rather than a precise, detailed line.  AVG/MIN/MAX show avg/min/max per day (or per hour, depending on the zoom level)">
+    <div id="graphmodes" ng-controller="DtgraphSensorCtrl" title="When displayed data is zoomed out it is shown as an approximation (ie group by) only rather than a precise, detailed line.  AVG/MIN/MAX show avg/min/max per day (or per hour, depending on the zoom level)">
         <input type="checkbox" ng-model="$storage.graphModes.avg" ng-change="graphModeChanged()"/> <span>Avg</span>
         <input type="checkbox" ng-model="$storage.graphModes.min" ng-change="graphModeChanged()"/> <span>Min</span>
         <input type="checkbox" ng-model="$storage.graphModes.max" ng-change="graphModeChanged()"> <span>Max</span>

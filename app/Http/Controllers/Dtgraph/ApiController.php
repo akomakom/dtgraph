@@ -91,12 +91,6 @@ class ApiController extends Controller {
             ->header('Content-Type', 'text/plain');
     }
 
-    private function wrapStatusText($result, $code = 200) {
-        return (new Response($result, $code))
-            ->header('Content-Type', 'text/plain');
-    }
-
-
     private function wrapStatus($result, $ok = true, $startTime = null, $code = 200) {
         if (is_array($result)) {
             $result['ok'] = $ok;
