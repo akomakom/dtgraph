@@ -1,9 +1,15 @@
 Dtgraph
 -----
+This is an in-progress rewrite of the ancient Dtgraph that I wrote in the early 2000s.
+This implementation is using an MVC framework (laravel) and quick, dynamic graph rendering (d3).
 
-# TBD:
-* migrations for all tables
-* admin tool
+## Done
+* Graphing works, with mouse-zoom, etc.
+* Smart group by data thinning depending on zoom level.
+
+## Not Done
+* No UI for managing digitemp_metadata (no admin UI to configure sensors)
+* Fast zooming and panning sometimes breaks (requires reload)
 
 # Requirements
 1. PHP + Web Server
