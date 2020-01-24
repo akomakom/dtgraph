@@ -31,11 +31,18 @@ These instructions are a concise summary of the general Laravel framework instal
    TBD: Write migration for main tables too.
 
 1. Putting temperature data into your Database:
-   * A wrapper is provided for logging temperatures from digitemp, used like this:
-   **php artisan dtgraph:logdigitemp** (see config/dtgraph.php for command that is run).
-   It is your responsibility to get digitemp working before you get to this step.
-   * A generic command to log arbitrary data:
+    * From Command Line
+       * A wrapper is provided for logging temperatures from digitemp, used like this:
+        **php artisan dtgraph:logdigitemp** (see config/dtgraph.php for command that is run).
+        It is your responsibility to get digitemp working before you get to this step.
+       * A generic command to log arbitrary data:
         **php artisan dtgraph:logtemp** (try 'php artisan help dtgraph:logtemp' for options)
+    * Via HTTP
+        * An API endpoint exists for adding readings via HTTP, eg:
+            ```
+            /dtgraph/api/add/[SENSOR_NAME]?temperature=[TEMPERATURE]&unit=C&delta_seconds=[AGE_OF_READING]
+            ```
+          (Only temperature is required)
 
 
 # Configuration

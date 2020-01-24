@@ -174,3 +174,7 @@ ul.sensors li input[type=checkbox] {
 
 
 
+#spinner {
+    position: absolute;
+    z-index: 10000000;
+}

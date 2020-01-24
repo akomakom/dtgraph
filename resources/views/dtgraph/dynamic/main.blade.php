@@ -7,13 +7,14 @@
 <script>
 
   //defaults
-  var timeStart = new Date().addYears(-1).getTime();      // a year ago
+  var timeStart = new Date().addHours(-24).getTime();      // a year ago
   var timeEnd = new Date().getTime();
 
   var sensorUrlConstructor = function (lineWrapper) {
     return "api/reading/" + lineWrapper.serialNumber + "?start=" + Math.round(timeStart / 1000) + "&end=" + Math.round(timeEnd / 1000) + "&mode=" + lineWrapper.graphMode;
   };
 
+  var spinner;
 
   var errorData = null; //set by controller
   var errorTimeout = null;
@@ -284,7 +285,9 @@
 
     this.updateData = function (lineWrapper, postcallback, setXDomain) {
       var url = sensorUrlConstructor(lineWrapper);
+      spinner.show();
       d3.json(url, function (error, data) {
+        spinner.hide();
         if (error) {
           handlError("Failed to load data for sensor: " + error.status + " " + error.statusText + " from " + url);
           return;
@@ -558,6 +561,11 @@
   })(window.angular);
 
 
+  $(function() {
+    //spinner
+    spinner = $('#spinner').hide();
+  })
+
 </script>
 
 @endsection
@@ -595,5 +603,6 @@
 
 @section('content')
 <div id="notices" ng-controller="DtgraphNoticesCtrl" ng-model="notices">@{{notices}}</div>
+<div id="spinner"><img src="img/Spinner-Preloader.gif"/></div>
 <svg id="graph" d3angular></svg>
 @endsection
