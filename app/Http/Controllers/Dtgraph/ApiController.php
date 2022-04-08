@@ -12,9 +12,15 @@ class ApiController extends Controller {
     const ERROR_ARGS = 1;
 
 
-    public function sensor($sensor = null) {
+    public function sensor(Request $request, $sensor = null) {
         $startTime = microtime(true);
-        return $this->wrapStatus(['data' => Sensor::read($sensor)], true, $startTime);
+        $data = Sensor::read($sensor);
+        if ($request->input('latest', false)) {
+            foreach($data as $metadata) {
+                $metadata->latest =  Reading::latest($metadata->SerialNumber);
+            }
+        }
+        return $this->wrapStatus(['data' => $data], true, $startTime);
     }
 
     public function sensorName() {
