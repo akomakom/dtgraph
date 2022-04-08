@@ -67,6 +67,7 @@ ul.sensors li input[type=checkbox] {
     vertical-align: top;
     color: darkmagenta;
     font-weight: bold;
+    text-align: center;
 }
 
 

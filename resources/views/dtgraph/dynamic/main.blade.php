@@ -582,7 +582,7 @@
                        value="@{{sensor.SerialNumber}}"/>
                 <span class="sensorcolor bgcolor@{{$index + 1}}"
                       style="background-color: @{{sensor.color}}">&nbsp;</span>
-                <span class="sensorlatest" title="@{{sensor.latest.avg}}, Min: @{{sensor.latest.min}}, Max: @{{sensor.latest.max}}, Date: @{{sensor.latest.maxtime}}">@{{sensor.latest.avg | number:'0'}}</span>
+                <span class="sensorlatest" title="@{{sensor.latest.avg}}, Min: @{{sensor.latest.min}}, Max: @{{sensor.latest.max}}, Date: @{{sensor.latest.maxtime}}">@{{(sensor.latest.avg | number:'0') || '-'}}</span>
                 <span title="@{{sensor.description}} (@{{sensor.SerialNumber}})">@{{sensor.name}}</span>
             </li>
         </ul>
