@@ -38,6 +38,7 @@ ul.sensors {
 
 ul.sensors li {
     margin: 5px 0px;
+    white-space: nowrap;
 }
 ul.sensors li span {
     font-size: 1.4em;
@@ -189,4 +190,11 @@ ul.sensors li input[type=checkbox] {
 #spinner {
     position: absolute;
     z-index: 10000000;
+}
+
+@media screen and (max-width: 800px) and (orientation: portrait) {
+    #sidebar {
+        /*width:100%;*/
+        font-size: xx-large;
+    }
 }

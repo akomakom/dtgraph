@@ -7,7 +7,7 @@
 <script>
 
   //defaults
-  var timeStart = new Date().addHours(-24).getTime();      // a year ago
+  var timeStart = new Date().addHours(-24).getTime();      // Initial zoom
   var timeEnd = new Date().getTime();
 
   var sensorUrlConstructor = function (lineWrapper) {
@@ -136,10 +136,10 @@
     var lines = new Lines();
     var self = this;
 
-
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      width = 0.65 * window.innerWidth, height = 500 - margin.top - margin.bottom;
+      // width = 960 - margin.left - margin.right,
+      // height = 500 - margin.top - margin.bottom;
 
     var x = d3.time.scale()
     .range([0, width]);
@@ -222,7 +222,6 @@
       if (timeStart == timeEnd) {
         //we have a problem here.
       }
-
 
       var redrawDelayed = function () {
         redraw(200);
@@ -456,51 +455,54 @@
 
       $scope.$storage = $localStorage.$default({
         checkedSensors: {},
-        timeRange: {timeStart: timeStart, timeEnd: timeEnd},
+        // timeRange: {timeStart: timeStart, timeEnd: timeEnd},
         graphModes: {min: false, max: false, avg: true},
         sensors: {},
+        displayOptions: {liveFollow: true, period: 'day'}
       });
 
-      $http.get('api/sensor?latest=true').then(
-        function (response) {
-          var data = response.data;
-          if (data.ok) {
-            $scope.sensors = data.data;
-            //make sure that they are all in checkedSensors
-            var extraSensors = Object.keys($scope.$storage.checkedSensors);
-            for (var idx in $scope.sensors) {
-              var sensor = $scope.sensors[idx];
-              //if it's false or undefined, ensure we have a hash entry
-              if (!$scope.$storage.checkedSensors[sensor.SerialNumber]) {
-                $scope.$storage.checkedSensors[sensor.SerialNumber] = false;
-              }
-              delete extraSensors[extraSensors.indexOf(sensor.SerialNumber)];
-            }
+      $scope.loadSensorMetadata = function () {
+          $http.get('api/sensor?latest=true').then(
+              function (response) {
+                  var data = response.data;
+                  if (data.ok) {
+                      $scope.sensors = data.data;
+                      //make sure that they are all in checkedSensors
+                      var extraSensors = Object.keys($scope.$storage.checkedSensors);
+                      for (var idx in $scope.sensors) {
+                          var sensor = $scope.sensors[idx];
+                          //if it's false or undefined, ensure we have a hash entry
+                          if (!$scope.$storage.checkedSensors[sensor.SerialNumber]) {
+                              $scope.$storage.checkedSensors[sensor.SerialNumber] = false;
+                          }
+                          delete extraSensors[extraSensors.indexOf(sensor.SerialNumber)];
+                      }
 
-            //but what if we have old sensors in checkedSensors that are no longer valid?
-            $.each(extraSensors, function (idx, sensor) {
-              delete $scope.$storage.checkedSensors[sensor];
-            });
+                      //but what if we have old sensors in checkedSensors that are no longer valid?
+                      $.each(extraSensors, function (idx, sensor) {
+                          delete $scope.$storage.checkedSensors[sensor];
+                      });
 //                        if ($scope.$storage.checkedSensors && $scope.$storage.checkedSensors.length >  )
 
-            //we can't add graphs at this point, we need to do it
-            // after the document is processed
+                      //we can't add graphs at this point, we need to do it
+                      // after the document is processed
 //                        setTimeout(applyAlreadyCheckedSensorCheckboxes, 0);
 
-            $scope.$watchCollection('$storage.checkedSensors', function (newValue, oldValue) {
-              console.debug("value changed from " + oldValue + " to " + newValue);
-              $scope.applyCheckedSensors();
-            });
+                      $scope.$watchCollection('$storage.checkedSensors', function (newValue, oldValue) {
+                          console.debug("value changed from " + oldValue + " to " + newValue);
+                          $scope.applyCheckedSensors();
+                      });
 
-          } else {
-            handlError("Failed to load sensor data: " + response);
-          }
-        },
-        function (response) {
-          handleError("Failed to load sensor data: " + response);
-        }
-      );
+                  } else {
+                      handlError("Failed to load sensor data: " + response);
+                  }
+              },
+              function (response) {
+                  handleError("Failed to load sensor data: " + response);
+              }
+          );
 
+      };
 
 
       $scope.applyCheckedSensors = function () {
@@ -555,7 +557,19 @@
         } else if (period == 'hour') {
           gm.zoomTo(new Date().addHours(-1), new Date());
         }
+        $scope.$storage.displayOptions.liveFollow = true;
+        $scope.$storage.displayOptions.period = period;
       }
+
+      $scope.loadSensorMetadata();
+
+      // enable live follow
+      setInterval(function () {
+          $scope.loadSensorMetadata(); // update sensors and latest temp
+          if ($scope.$storage.displayOptions.liveFollow) {
+              $scope.graphZoomJump($scope.$storage.displayOptions.period);
+          }
+      }, 60000);
     });
 
   })(window.angular);
@@ -590,13 +604,16 @@
     <div id="graphmodes" ng-controller="DtgraphSensorCtrl" title="When displayed data is zoomed out it is shown as an approximation (ie group by) only rather than a precise, detailed line.  AVG/MIN/MAX show avg/min/max per day (or per hour, depending on the zoom level)">
         <input type="checkbox" ng-model="$storage.graphModes.avg" ng-change="graphModeChanged()"/> <span>Avg</span>
         <input type="checkbox" ng-model="$storage.graphModes.min" ng-change="graphModeChanged()"/> <span>Min</span>
-        <input type="checkbox" ng-model="$storage.graphModes.max" ng-change="graphModeChanged()"> <span>Max</span>
+        <input type="checkbox" ng-model="$storage.graphModes.max" ng-change="graphModeChanged()"/> <span>Max</span>
     </div>
     <div id="zoomjump" ng-controller="DtgraphSensorCtrl">
         <input type="button" ng-click="graphZoomJump('year')" value="Year"/>
         <input type="button" ng-click="graphZoomJump('month')" value="Month"/>
         <input type="button" ng-click="graphZoomJump('day')" value="Day"/>
         <input type="button" ng-click="graphZoomJump('hour')" value="Hour"/>
+        <input type="checkbox" ng-model="$storage.displayOptions.liveFollow" title="Periodically reload graph and move to current time"><span>Live</span>
+
+<!--        <span class="liveindicator" title="Live Updating">@{{$storage.displayOptions.liveFollow === true ? "Live" : "Not Live"}}</span>-->
     </div>
 </div>
 @endsection

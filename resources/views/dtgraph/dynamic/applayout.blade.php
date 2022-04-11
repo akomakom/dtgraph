@@ -1,23 +1,27 @@
 <html ng-app="dtgraphApp">
     <head>
-        <title>App Name - @yield('title')</title>
+        <title>DTGraph - @yield('title')</title>
         <style>
             #content {
                 position: relative;
                 width: 100%;
             }
             #sidebar {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                width: 240px;
+                /*position: absolute;*/
+                /*top: 0;*/
+                /*bottom: 0;*/
+                /*left: 0;*/
+                min-width: 180px;
+                float: left;
             }
             #main {
-                position: relative;
-                margin-left: 250px;
+                float: left;
+                /*position: relative;*/
+                /*margin-left: 190px;*/
             }
         </style>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <script language="JavaScript" src="js/main.js"></script>
         <link rel="stylesheet" href="css/main.css"/>
