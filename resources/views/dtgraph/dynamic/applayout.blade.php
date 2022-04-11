@@ -23,8 +23,8 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <script language="JavaScript" src="js/main.js"></script>
-        <link rel="stylesheet" href="css/main.css"/>
+        <script src="js/main.js"></script>
+        <link rel="stylesheet" href="css/main.css?cachebuster=8"/>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 <!--        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>-->
@@ -40,16 +40,11 @@
 
         <div id="content">
             <div id="sidebar">
-                <h1>Sidebar</h1>
-
-
                 @yield('sidebar')
 
 
             </div>
             <div id="main">
-                <h1>Main</h1>
-
                 @yield('content')
             </div>
         </div>

@@ -458,7 +458,7 @@
         // timeRange: {timeStart: timeStart, timeEnd: timeEnd},
         graphModes: {min: false, max: false, avg: true},
         sensors: {},
-        displayOptions: {liveFollow: true, period: 'day'}
+        displayOptions: {liveFollow: true, showInactive: false}
       });
 
       $scope.loadSensorMetadata = function () {
@@ -558,7 +558,6 @@
           gm.zoomTo(new Date().addHours(-1), new Date());
         }
         $scope.$storage.displayOptions.liveFollow = true;
-        $scope.$storage.displayOptions.period = period;
       }
 
       $scope.loadSensorMetadata();
@@ -567,7 +566,9 @@
       setInterval(function () {
           $scope.loadSensorMetadata(); // update sensors and latest temp
           if ($scope.$storage.displayOptions.liveFollow) {
-              $scope.graphZoomJump($scope.$storage.displayOptions.period);
+              // take the current range, and adjust it to current time
+              let delta = (new Date()).getTime() - timeEnd;
+              gm.zoomTo(timeStart + delta, timeEnd + delta);
           }
       }, 60000);
     });
@@ -591,15 +592,19 @@
     <div id="sensors" ng-controller="DtgraphSensorCtrl">
 
         <ul class="sensors">
-            <li ng-repeat="sensor in sensors" ng-click="rowClicked(obj)">
+            <li ng-repeat="sensor in sensors" ng-click="rowClicked(obj)" class="@{{sensor.latest.avg || $storage.displayOptions.showInactive? '': 'hidden'}}">
                 <input type="checkbox" ng-model="$storage.checkedSensors[sensor.SerialNumber]" name="sensor"
                        value="@{{sensor.SerialNumber}}"/>
                 <span class="sensorcolor bgcolor@{{$index + 1}}"
                       style="background-color: @{{sensor.color}}">&nbsp;</span>
+
                 <span class="sensorlatest" title="@{{sensor.latest.avg}}, Min: @{{sensor.latest.min}}, Max: @{{sensor.latest.max}}, Date: @{{sensor.latest.maxtime}}">@{{(sensor.latest.avg | number:'0') || '-'}}</span>
                 <span title="@{{sensor.description}} (@{{sensor.SerialNumber}})">@{{sensor.name}}</span>
             </li>
         </ul>
+
+        <button type="button" class="btn btn-default expand" ng-click='$storage.displayOptions.showInactive = !$storage.displayOptions.showInactive' title="@{{$storage.displayOptions.showInactive ? 'Hide Inactive' : 'Show Inactive'}}">@{{$storage.displayOptions.showInactive ? '&uArr;' : '&dArr;'}}</button>
+
     </div>
     <div id="graphmodes" ng-controller="DtgraphSensorCtrl" title="When displayed data is zoomed out it is shown as an approximation (ie group by) only rather than a precise, detailed line.  AVG/MIN/MAX show avg/min/max per day (or per hour, depending on the zoom level)">
         <input type="checkbox" ng-model="$storage.graphModes.avg" ng-change="graphModeChanged()"/> <span>Avg</span>
@@ -607,10 +612,10 @@
         <input type="checkbox" ng-model="$storage.graphModes.max" ng-change="graphModeChanged()"/> <span>Max</span>
     </div>
     <div id="zoomjump" ng-controller="DtgraphSensorCtrl">
-        <input type="button" ng-click="graphZoomJump('year')" value="Year"/>
-        <input type="button" ng-click="graphZoomJump('month')" value="Month"/>
-        <input type="button" ng-click="graphZoomJump('day')" value="Day"/>
-        <input type="button" ng-click="graphZoomJump('hour')" value="Hour"/>
+        <button type="button" ng-click="graphZoomJump('year')" value="Year">Year</button>
+        <button type="button" ng-click="graphZoomJump('month')" value="Month">Month</button>
+        <button type="button" ng-click="graphZoomJump('day')" value="Day">Day</button>
+        <button type="button" ng-click="graphZoomJump('hour')" value="Hour">Hour</button>
         <input type="checkbox" ng-model="$storage.displayOptions.liveFollow" title="Periodically reload graph and move to current time"><span>Live</span>
 
 <!--        <span class="liveindicator" title="Live Updating">@{{$storage.displayOptions.liveFollow === true ? "Live" : "Not Live"}}</span>-->
