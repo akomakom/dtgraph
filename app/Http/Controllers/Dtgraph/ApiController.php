@@ -77,9 +77,9 @@ class ApiController extends Controller {
 /**/
     public function add(Request $request, $sensor = null) {
         $delta = intval($request->input('delta_seconds'));
-        if (rand(0,10) > 40) {
-            return $this->wrapStatus("Faking a problem", false, null, 433);
-        }
+//        if (rand(0,10) > 40) {
+//            return $this->wrapStatus("Faking a problem", false, null, 433);
+//        }
         if ($request->input('unit') == 'C') {
             //convert to Fahrenheit
             Reading::add($sensor, $request->input('temperature') *9/5+32, $delta);
@@ -88,6 +88,10 @@ class ApiController extends Controller {
             Reading::add($sensor, $request->input('temperature'), $delta);
         }
         // TODO: handle humidity
+        if ($request->input('humidity') > 0) {
+            // don't do this yet, with col size 17 it's shortened to mac and is recorded as temp
+            //Reading::add("{$sensor}-humidity", $request->input('humidity'), $delta);
+        }
         return $this->wrapStatus('accepted');
     }
 /**/
