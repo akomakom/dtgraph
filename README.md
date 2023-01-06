@@ -1,62 +1,66 @@
-Dtgraph
------
-This is an in-progress rewrite of the ancient Dtgraph that I wrote in the early 2000s.
-This implementation is using an MVC framework (laravel) and quick, dynamic graph rendering (d3).
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-## Done
-* Graphing works, with mouse-zoom, etc.
-* Smart group by data thinning depending on zoom level.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## Not Done
-* No UI for managing digitemp_metadata (no admin UI to configure sensors)
-* Fast zooming and panning sometimes breaks (requires reload)
+## About Laravel
 
-# Requirements
-1. PHP + Web Server
-1. Composer
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-# Installation
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-### Web
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-NOTE: if you are on shared hosting and can't open a shell, you can run composer locally and upload the result.
+## Learning Laravel
 
-These instructions are a concise summary of the general Laravel framework installation:
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-1. Unzip to a directory under your web root
-1. Run "composer install" in the directory to get all dependencies.
-   * Any errors about missing PHP extensions will need to be resolved before continuing.  Try to install these extensions via your normal package manager.
-1. Make your web server aware of this app, if needed using the method of your choosing (ie for Apache: "Alias /dtgraph /dir/of/dtgraph/public", and you may need a <Directory> section to relax your permissions, depending on your overall configuration)
-1. File Permissions:
-   * Writable: storage/ subdirectory ("chmod -R a+w storage" or chown to your web server user)
+You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-### Backend
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-1. DB initialization uses artisan:
-   php artisan migrate:install (see Configuration first)
-   TBD: Write migration for main tables too.
+## Laravel Sponsors
 
-1. Putting temperature data into your Database:
-    * From Command Line
-       * A wrapper is provided for logging temperatures from digitemp, used like this:
-        **php artisan dtgraph:logdigitemp** (see config/dtgraph.php for command that is run).
-        It is your responsibility to get digitemp working before you get to this step.
-       * A generic command to log arbitrary data:
-        **php artisan dtgraph:logtemp** (try 'php artisan help dtgraph:logtemp' for options)
-    * Via HTTP
-        * An API endpoint exists for adding readings via HTTP, eg:
-            ```
-            /dtgraph/api/add/[SENSOR_NAME]?temperature=[TEMPERATURE]&unit=C&delta_seconds=[AGE_OF_READING]
-            ```
-          (Only temperature is required)
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
 
+### Premium Partners
 
-# Configuration
+- **[Vehikl](https://vehikl.com/)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Cubet Techno Labs](https://cubettech.com)**
+- **[Cyber-Duck](https://cyber-duck.co.uk)**
+- **[Many](https://www.many.co.uk)**
+- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
+- **[DevSquad](https://devsquad.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
+- **[OP.GG](https://op.gg)**
+- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
+- **[Lendio](https://lendio.com)**
 
-* Database configuration should go into **.env** in the root directory (no need to change config/database.php). Use **.env.example** as a reference
+## Contributing
 
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-# URL changes
- This may be important to you if you've built tools or monitoring around old urls:
-* showlatest.php -> api/latest?format=txt
-* showlatest.php?sensor=X -> api/latest/X?format=txt
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
