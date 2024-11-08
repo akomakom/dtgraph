@@ -5,7 +5,7 @@ use App\Reading;
 use App\Sensor;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-
+use Carbon\Carbon;
 
 class ApiController extends Controller {
 
@@ -95,6 +95,41 @@ class ApiController extends Controller {
         return $this->wrapStatus('accepted');
     }
 /**/
+
+    /**
+     * @param Request $request
+     * @param $sensor optionally only check this sensor
+     * @param $timeframe minutes how far back to look for sensors with readings (default 7 days).
+     * @param $threshold minutes how far back is stale (default 45 minutes))
+     * @return void
+     */
+    public function healthCheck(Request $request, $sensor = null) {
+        $result = Reading::staleCheck(
+            $sensor,
+            $request->get('timeframe', 10080),
+            $request->get('threshold', 45)
+        );
+
+        if ($request->get('short', false) == true) {
+            $text = [];
+
+            foreach ($result as $num => $item) {
+                if ($item->status == 'stale') {
+                    $text[] = sprintf(
+                        "Sensor %s (%s)",
+                        $item->SerialNumber,
+                        Carbon::now()->subSeconds($item->age)->diffForHumans()
+                    );
+                }
+            }
+            return count($text) > 0 ?
+                $this->wrapStatusText("WARNING: Stale: " . implode(", ", $text), )
+                :
+                $this->wrapStatusText("OK");
+        } else {
+            return $this->wrapStatus($result);
+        }
+    }
 
     private function wrapStatusText($result, $code = 200) {
         return (new Response($result, $code))

@@ -199,4 +199,38 @@ class Reading extends Model
             DB::insert('insert into digitemp SET SerialNumber=?, Fahrenheit=?', [$serial, $temperature]);
         }
     }
+
+    /**
+     * @param $serial optionally only check this sensor
+     * @param $timeframe minutes how far back to look for sensors with readings (default 7 days).
+     * @param $threshold minutes how far back is stale (default 45 minutes))
+     * @return void
+     */
+    public static function staleCheck($serial, $timeframe, $threshold) {
+        $result = null;
+        if ($timeframe == null) {
+            $timeframe = 10080;
+        }
+        if ($threshold == null) {
+            $threshold = 45;
+        }
+        if ($serial) {
+            $result = DB::select("
+            select SerialNumber, lasttime, NOW() - lasttime as 'age', case when lasttime>date_sub(currtime, interval ? minute) then 'recent' else 'stale' end status
+                from( select SerialNumber, max(time) lasttime from digitemp WHERE time > date_sub(NOW() , interval ? minute and SerialNumber = ?)
+                )a
+            cross join (select Date_sub(Now(), interval 0 minute) currtime   )t where lasttime<currtime;",
+                [$threshold, $timeframe, $serial]
+            );
+        } else {
+            $result = DB::select("
+            select SerialNumber, lasttime, NOW() - lasttime as 'age', case when lasttime>date_sub(currtime, interval ? minute) then 'recent' else 'stale' end status
+                from( select SerialNumber, max(time) lasttime from digitemp WHERE time > date_sub(NOW(), interval ? minute)
+                group by SerialNumber   )a
+            cross join (select Date_sub(Now(), interval 0 minute) currtime   )t where lasttime<currtime;",
+                [$threshold, $timeframe]
+            );
+        }
+        return $result;
+    }
 }

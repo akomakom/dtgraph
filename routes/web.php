@@ -43,6 +43,8 @@ Route::controller(\App\Http\Controllers\Dtgraph\ApiController::class)->prefix('a
     Route::get('sensorname', 'sensorName');
     Route::get('reading/{sensor}', 'reading');
     Route::get('latest', 'latest');
+    Route::get('health/{sensor}', 'healthCheck');
+    Route::get('health', 'healthCheck');
     Route::get('add/{sensor}', 'add');
     Route::post('add/{sensor}', 'add');
 });
