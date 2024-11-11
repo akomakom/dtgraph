@@ -87,10 +87,16 @@ class ApiController extends Controller {
         } else {
             Reading::add($sensor, $request->input('temperature'), $delta);
         }
+
+        if (config('dtgraph.shorten_serialnumber_if_mac', false)
+            && preg_match("/^..:..:..:..:..:..$/", $sensor)) {
+            $sensor = preg_replace("/:/", "", $sensor);
+        }
+
         // TODO: handle humidity
         if ($request->input('humidity') > 0) {
-            // don't do this yet, with col size 17 it's shortened to mac and is recorded as temp
-            //Reading::add("{$sensor}-humidity", $request->input('humidity'), $delta);
+            // Had to expand column to over 17, as it's shortened to mac and is recorded as temp
+            Reading::add("{$sensor}-H", $request->input('humidity'), $delta);
         }
         return $this->wrapStatus('accepted');
     }

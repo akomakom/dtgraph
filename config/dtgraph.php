@@ -38,17 +38,17 @@ return [
 
     /////////////// Response Data management /////////////////
 
-    //These values reduce the number of rows returned from the database
-    //Since a zoomed out graph doesn't need a lot of detail, don't fetch it - instead return daily/hourly precision.
+    //These values reduce the number of rows returned from the database and thus to the browser
+    //Since a zoomed out graph doesn't need a lot of detail, don't fetch it - instead return daily/hourly approximation.
 
     // When requested data range is longer than this (seconds), group resulting data by days
-    // 1209600 is 14 days
+    // 2592000 is 30 days
     // increasing this will make responses larger and slower
-    'db_threshold_days' => 1209600,
+    'db_threshold_days' => 2592000,
 
     // When requested data range is longer than this (seconds), group resulting data by hours
-    // 86400 is one day
-    'db_threshold_hours' => 86400,
+    // 432000 is 5 days
+    'db_threshold_hours' => 432000,
 
 
     // for the "latest" api endpoint that returns the latest readings for each sensor,
@@ -62,5 +62,8 @@ return [
         'read_temps_command' => 'digitemp -q -a -o"%R %.2F" -c ~/.digitemprc',
         'valid_temp_min' => -100,
         'valid_temp_max' => 180,
-    ]
+    ],
+
+    // For /add requests, if the serialnumber is mac (XX:XX:XX:XX:XX:XX), remove the colons.
+    'shorten_serialnumber_if_mac' => true,
 ];
