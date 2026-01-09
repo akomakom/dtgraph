@@ -12,4 +12,17 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
+| Note: These routes automatically get the /api prefix from RouteServiceProvider
+|
 */
+
+Route::controller(\App\Http\Controllers\Dtgraph\ApiController::class)->group(function () {
+    Route::get('sensor', 'sensor');
+    Route::get('sensorname', 'sensorName');
+    Route::get('reading/{sensor}', 'reading');
+    Route::get('latest', 'latest');
+    Route::get('health/{sensor}', 'healthCheck');
+    Route::get('health', 'healthCheck');
+    Route::get('add/{sensor}', 'add');
+    Route::post('add/{sensor}', 'add');
+});

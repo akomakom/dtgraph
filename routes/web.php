@@ -37,24 +37,5 @@ Route::group(['middleware' => ['web']], function () {
     //
 });
 
-
-Route::controller(\App\Http\Controllers\Dtgraph\ApiController::class)->prefix('api')->group(function () {
-    Route::get('sensor', 'sensor');
-    Route::get('sensorname', 'sensorName');
-    Route::get('reading/{sensor}', 'reading');
-    Route::get('latest', 'latest');
-    Route::get('health/{sensor}', 'healthCheck');
-    Route::get('health', 'healthCheck');
-    Route::get('add/{sensor}', 'add');
-    Route::post('add/{sensor}', 'add');
-});
-
-
-//Route::group(['namespace' => 'Dtgraph', 'prefix' => 'api'], function() {
-//
-//    Route::resource('sensor', 'ApiController@sensor');
-//    Route::resource('sensorname', 'ApiController@sensorName');
-//    Route::resource('reading', 'ApiController@reading');
-//    Route::resource('latest', 'ApiController@latest');
-//    Route::resource('add', 'ApiController@add');
-//});
+// API routes have been moved to routes/api.php to avoid CSRF token issues
+// with hardware devices making GET/POST requests
