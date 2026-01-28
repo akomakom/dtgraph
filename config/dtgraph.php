@@ -66,4 +66,29 @@ return [
 
     // For /add requests, if the serialnumber is mac (XX:XX:XX:XX:XX:XX), remove the colons.
     'shorten_serialnumber_if_mac' => true,
+
+    /////////////// MQTT Configuration /////////////////
+    
+    'mqtt' => [
+        // Enable/disable MQTT publishing
+        'enabled' => env('MQTT_ENABLED', false),
+        
+        // MQTT broker connection settings
+        'host' => env('MQTT_HOST', 'localhost'),
+        'port' => env('MQTT_PORT', 1883),
+        'username' => env('MQTT_USERNAME', null),
+        'password' => env('MQTT_PASSWORD', null),
+        'client_id' => env('MQTT_CLIENT_ID', 'dtgraph'),
+        
+        // Home Assistant MQTT Discovery
+        // See: https://www.home-assistant.io/docs/mqtt/discovery/
+        'discovery_prefix' => env('MQTT_DISCOVERY_PREFIX', 'homeassistant'),
+        
+        // Topic where sensor states are published
+        // Format: {state_topic_prefix}/{sensor_id}/{temperature|humidity}
+        'state_topic_prefix' => env('MQTT_STATE_TOPIC_PREFIX', 'dtgraph'),
+        
+        // Availability topic for the dtgraph service
+        'availability_topic' => env('MQTT_AVAILABILITY_TOPIC', 'dtgraph/status'),
+    ],
 ];

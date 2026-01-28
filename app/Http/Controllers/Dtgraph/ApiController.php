@@ -3,6 +3,7 @@
 use App\Http\Controllers\Controller;
 use App\Reading;
 use App\Sensor;
+use App\MqttPublisher;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Carbon\Carbon;
@@ -80,24 +81,41 @@ class ApiController extends Controller {
 //        if (rand(0,10) > 40) {
 //            return $this->wrapStatus("Faking a problem", false, null, 433);
 //        }
+        
+        // Keep original sensor ID for MQTT (before shortening for database)
+        $originalSensor = $sensor;
+        
+        $temperature = null;
         if ($request->input('unit') == 'C') {
             //convert to Fahrenheit
-            Reading::add($sensor, $request->input('temperature') *9/5+32, $delta);
-
+            $temperature = $request->input('temperature') * 9/5 + 32;
+            Reading::add($sensor, $temperature, $delta);
         } else {
-            Reading::add($sensor, $request->input('temperature'), $delta);
+            $temperature = $request->input('temperature');
+            Reading::add($sensor, $temperature, $delta);
         }
 
+        // Shorten sensor ID for database storage (MAC addresses)
         if (config('dtgraph.shorten_serialnumber_if_mac', false)
             && preg_match("/^..:..:..:..:..:..$/", $sensor)) {
             $sensor = preg_replace("/:/", "", $sensor);
         }
 
-        // TODO: handle humidity
+        // Publish temperature to MQTT using original sensor ID
+        if ($temperature !== null) {
+            MqttPublisher::publishTemperature($originalSensor, $temperature);
+        }
+
+        // Handle humidity
         if ($request->input('humidity') > 0) {
             // Had to expand column to over 17, as it's shortened to mac and is recorded as temp
-            Reading::add("{$sensor}-H", $request->input('humidity'), $delta);
+            $humidity = $request->input('humidity');
+            Reading::add("{$sensor}-H", $humidity, $delta);
+            
+            // Publish humidity to MQTT using original sensor ID
+            MqttPublisher::publishHumidity($originalSensor, $humidity);
         }
+        
         return $this->wrapStatus('accepted');
     }
 /**/
