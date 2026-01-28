@@ -101,19 +101,26 @@ class ApiController extends Controller {
             $sensor = preg_replace("/:/", "", $sensor);
         }
 
-        // Publish temperature to MQTT using original sensor ID
-        if ($temperature !== null) {
-            MqttPublisher::publishTemperature($originalSensor, $temperature);
+        // Only publish to MQTT if this is a current reading (delta=0)
+        // Historical/deferred readings should not update MQTT state
+        if ($delta == 0) {
+            // Publish temperature to MQTT using original sensor ID
+            if ($temperature !== null) {
+                MqttPublisher::publishTemperature($originalSensor, $temperature);
+            }
+
+            // Handle humidity
+            if ($request->input('humidity') > 0) {
+                $humidity = $request->input('humidity');
+                // Publish humidity to MQTT using original sensor ID
+                MqttPublisher::publishHumidity($originalSensor, $humidity);
+            }
         }
 
-        // Handle humidity
+        // Always save humidity to database (even for historical readings)
         if ($request->input('humidity') > 0) {
-            // Had to expand column to over 17, as it's shortened to mac and is recorded as temp
             $humidity = $request->input('humidity');
             Reading::add("{$sensor}-H", $humidity, $delta);
-            
-            // Publish humidity to MQTT using original sensor ID
-            MqttPublisher::publishHumidity($originalSensor, $humidity);
         }
         
         return $this->wrapStatus('accepted');

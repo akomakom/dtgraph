@@ -114,11 +114,13 @@ class MqttPublisher
             $stateTopic = config('dtgraph.mqtt.state_topic_prefix', 'dtgraph') . "/{$sensorId}/{$sensorType}";
             
             // Build discovery payload
+            // Add 'dtgraph' prefix to entity name so Home Assistant creates IDs like:
+            // sensor.dtgraph_b_kk_temp_temperature
+            // Note: No availability_topic since we use per-request MQTT connections
             $payload = [
-                'name' => $sensorName . ' ' . ucfirst($sensorType),
+                'name' => 'dtgraph ' . $sensorName . ' ' . ucfirst($sensorType),
                 'unique_id' => "{$nodeId}_{$objectId}",
                 'state_topic' => $stateTopic,
-                'availability_topic' => config('dtgraph.mqtt.availability_topic', 'dtgraph/status'),
                 'device' => [
                     'identifiers' => [$sensorId],
                     'name' => $sensorName,
