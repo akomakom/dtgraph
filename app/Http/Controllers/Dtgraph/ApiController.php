@@ -141,24 +141,25 @@ class ApiController extends Controller {
             $request->get('threshold', 45)
         );
 
-        if ($request->get('short', false) == true) {
-            $text = [];
-
-            foreach ($result as $num => $item) {
-                if ($item->status == 'stale') {
-                    $text[] = sprintf(
-                        "Sensor %s (%s)",
-                        $item->SerialNumber,
-                        Carbon::now()->subSeconds($item->age)->diffForHumans()
-                    );
-                }
+        // Build this either way:
+        $text = [];
+        foreach ($result as $num => $item) {
+            if ($item->status == 'stale') {
+                $text[] = sprintf(
+                    "Sensor %s (%s)",
+                    $item->name ?: $item->SerialNumber,
+                    Carbon::now()->subSeconds($item->age)->diffForHumans()
+                );
             }
+        }
+
+        if ($request->get('short', false) == true) {
             return count($text) > 0 ?
-                $this->wrapStatusText("WARNING: Stale: " . implode(", ", $text), )
+                $this->wrapStatusText("WARNING: Stale: " . implode(", ", $text), 503)
                 :
                 $this->wrapStatusText("OK");
         } else {
-            return $this->wrapStatus($result);
+            return $this->wrapStatus($result, count($text) == 0 , null, count($text) > 0 ? 503 : 200);
         }
     }
 
@@ -167,7 +168,12 @@ class ApiController extends Controller {
             ->header('Content-Type', 'text/plain');
     }
 
-    private function wrapStatus($result, $ok = true, $startTime = null, $code = 200) {
+    private function wrapStatus(
+        $result, 
+        $ok = true, 
+        $startTime = null,
+        $code = 200
+    ) {
         if (is_array($result)) {
             $result['ok'] = $ok;
         } else {
@@ -177,7 +183,6 @@ class ApiController extends Controller {
         if ($startTime != null) {
             $result['time'] = microtime(true) - $startTime;
         }
-
         return response()->json(
             $result,
             $code,

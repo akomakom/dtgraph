@@ -216,17 +216,19 @@ class Reading extends Model
         }
         if ($serial) {
             $result = DB::select("
-            select SerialNumber, lasttime, NOW() - lasttime as 'age', case when lasttime>date_sub(currtime, interval ? minute) then 'recent' else 'stale' end status
-                from( select SerialNumber, max(time) lasttime from digitemp WHERE time > date_sub(NOW() , interval ? minute and SerialNumber = ?)
-                )a
+            select a.SerialNumber, m.name, lasttime, NOW() - lasttime as 'age', case when lasttime>date_sub(currtime, interval ? minute) then 'recent' else 'stale' end status
+                from( select SerialNumber, max(time) lasttime from digitemp WHERE time > date_sub(NOW() , interval ? minute) and SerialNumber = ?
+                group by SerialNumber )a
+            left join digitemp_metadata m on a.SerialNumber = m.SerialNumber
             cross join (select Date_sub(Now(), interval 0 minute) currtime   )t where lasttime<currtime;",
                 [$threshold, $timeframe, $serial]
             );
         } else {
             $result = DB::select("
-            select SerialNumber, lasttime, NOW() - lasttime as 'age', case when lasttime>date_sub(currtime, interval ? minute) then 'recent' else 'stale' end status
+            select a.SerialNumber, m.name, lasttime, NOW() - lasttime as 'age', case when lasttime>date_sub(currtime, interval ? minute) then 'recent' else 'stale' end status
                 from( select SerialNumber, max(time) lasttime from digitemp WHERE time > date_sub(NOW(), interval ? minute)
                 group by SerialNumber   )a
+            left join digitemp_metadata m on a.SerialNumber = m.SerialNumber
             cross join (select Date_sub(Now(), interval 0 minute) currtime   )t where lasttime<currtime;",
                 [$threshold, $timeframe]
             );
